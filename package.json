@@ -1,9 +1,9 @@
 {
   "name": "hotel-managment-system",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "./src/server.js",
   "scripts": {
-    "dev": "dotenv -e .env -- nodemon server.js",
+    "dev": "dotenv -e .env -- nodemon ./src/server.js",
     "db": "dotenv -e .env -- sequelize-cli db:create --config ./src/sequelizeConfigs.js --migrations-path ./src/migrations",
     "migrate": "dotenv -e .env -- sequelize-cli db:migrate --config ./src/sequelizeConfigs.js --migrations-path ./src/migrations",
     "undomigrate": "dotenv -e .env -- sequelize-cli db:migrate:undo:all --config ./src/sequelizeConfigs.js --migrations-path ./src/migrations"

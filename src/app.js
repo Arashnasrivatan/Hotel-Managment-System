@@ -4,6 +4,10 @@ const helmet = require("helmet");
 const { setHeaders } = require("./middlewares/setHeaders");
 const path = require("path");
 const passport = require("passport");
+const localStrategy = require("./strategies/localStrategy");
+const JwtAccessTokenStrategy = require("./strategies/JwtAccessTokenStrategy");
+const JwtRefreshTokenStrategy = require("./strategies/JwtRefreshTokenStrategy");
+const authRoutes = require("./routes/Auth");
 
 const app = express();
 
@@ -19,12 +23,15 @@ app.use(setHeaders);
 app.use(cors());
 
 //* Static Files
-app.use(express.static(path.join(__dirname,"public")));
+app.use(express.static(path.resolve(__dirname, "..", "public")));
 
 //* Passport
+passport.use(localStrategy);
+passport.use("accessToken", JwtAccessTokenStrategy);
+passport.use("refreshToken", JwtRefreshTokenStrategy);
 
 //* Routes
-
+app.use("/api/auth", authRoutes);
 
 //* 404 Err Handler
 app.use((req, res) => {
