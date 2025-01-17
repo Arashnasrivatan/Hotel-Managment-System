@@ -1,0 +1,24 @@
+const app = require("./app");
+const { db } = require("./db");
+const configs = require("./configs");
+const redis = require("./redis");
+
+//* Connect To DB
+
+//* Start Server
+async function startServer() {
+  try {
+    await db.authenticate();
+    await redis.ping();
+    app.listen(configs.port, () => {
+      console.log(`Server started on port ${configs.port}`);
+    });
+  } catch (err) {
+    console.log(err);
+    await db.close();
+    await redis.disconnect();
+  }
+}
+
+//* Run Project
+startServer();
