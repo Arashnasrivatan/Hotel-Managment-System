@@ -9,6 +9,7 @@ const localStrategy = require("./strategies/localStrategy");
 const JwtAccessTokenStrategy = require("./strategies/JwtAccessTokenStrategy");
 const JwtRefreshTokenStrategy = require("./strategies/JwtRefreshTokenStrategy");
 const authRoutes = require("./routes/Auth");
+const userRoutes = require("./routes/User");
 
 const app = express();
 
@@ -41,6 +42,7 @@ passport.use("refreshToken", JwtRefreshTokenStrategy);
 
 //* Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
 //* 404 Err Handler
 app.use((req, res) => {
