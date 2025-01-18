@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const { setHeaders } = require("./middlewares/setHeaders");
+const rateLimit = require("express-rate-limit");
 const path = require("path");
 const passport = require("passport");
 const localStrategy = require("./strategies/localStrategy");
@@ -17,6 +18,14 @@ app.use(express.json({ limit: "50mb" }));
 
 //* Helmet
 app.use(helmet());
+
+//* Rate Limiter
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  message: "Too many requests from this IP, please try again later.",
+});
+app.use(limiter);
 
 //* Cors Policy
 app.use(setHeaders);

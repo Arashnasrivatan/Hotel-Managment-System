@@ -14,19 +14,17 @@ const filefilter = (req, file, cb) => {
 };
 
 const uploader = (fieldName, isMultiple = false) => {
-  // پیکربندی multer بر اساس تعداد فایل‌ها
+
   const upload = multer({
-    limits: { fileSize: 5 * 1024 * 1024 }, // حداکثر حجم فایل
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: filefilter,
   });
 
-  // اگر فایل‌ها باید multiple باشند
   if (isMultiple) {
-    return upload.fields([{ name: fieldName }]);  // برای آپلود چند فایل
+    return upload.fields([{ name: fieldName }]);
   }
 
-  // اگر فایل‌ها باید single باشند
-  return upload.single(fieldName);  // برای آپلود تنها یک فایل
+  return upload.single(fieldName);
 };
 
 module.exports = uploader;
