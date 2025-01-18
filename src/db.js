@@ -11,9 +11,13 @@ const db = new Sequelize({
   logging: configs.isProduction ? false : console.log,
 });
 
+/** @type {import('sequelize').ModelCtor<import('sequelize').Model<any, any>} */
 const User = require("./models/User")(db);
+/** @type {import('sequelize').ModelCtor<import('sequelize').Model<any, any>} */
 const Booking = require("./models/Booking")(db);
+/** @type {import('sequelize').ModelCtor<import('sequelize').Model<any, any>} */
 const Room = require("./models/Room")(db);
+/** @type {import('sequelize').ModelCtor<import('sequelize').Model<any, any>} */
 const Payment = require("./models/Payment")(db);
 
 User.hasMany(Booking, {

@@ -30,8 +30,6 @@ exports.register = async (req, res, next) => {
       const fileBuffer = req.file.buffer;
       avatarPath = `/images/avatars/${Date.now()}${req.file.originalname}`;
 
-      console.log(__dirname);
-
       sharp(fileBuffer)
         .png({
           quality: 60,

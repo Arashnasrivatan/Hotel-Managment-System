@@ -4,9 +4,13 @@ const validate = require("./../middlewares/validate");
 const { forgotPassword } = require("../validations/Password");
 const { resetPassword } = require("../validations/Password");
 const { changePassword } = require("../validations/Password");
+const updateProfile = require("../validations/update");
 const passport = require("passport");
+const uploader = require("../middlewares/uploader");
 
 const router = express.Router();
+
+router.route("/").get(controller.getUsers);
 
 router
   .route("/forgot-password")
@@ -25,10 +29,18 @@ router
   );
 
 router
+  .route("/profile")
+  .put(
+    uploader("avatar"),
+    validate(updateProfile),
+    passport.authenticate("accessToken", { session: false }),
+    controller.updateProfile
+  );
+
+router
   .route("/delete-account")
   .delete(
     passport.authenticate("accessToken", { session: false }),
     controller.deleteAccount
   );
-
 module.exports = router;

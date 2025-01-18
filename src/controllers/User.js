@@ -6,7 +6,34 @@ const { User } = require("./../db");
 const redis = require("./../redis");
 const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
+const sharp = require("sharp");
 const response = require("./../utils/response");
+
+exports.getUsers = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const users = await User.findAll({
+      attributes: { exclude: ["password"] },
+      limit,
+      offset,
+      raw: true,
+    });
+
+    const usersCount = await User.count();
+
+    return response(res, 200, "لیست کاربران با موفقیت گرفته شد", {
+      usersCount,
+      currentPage: page,
+      totalPages: Math.ceil(usersCount / limit),
+      users,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.forgotPassword = async (req, res, next) => {
   try {
@@ -162,6 +189,57 @@ exports.changePassword = async (req, res, next) => {
   }
 };
 
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { name, email } = req.body;
+
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: ["password", "created_at", "updated_at", "role"] },
+    });
+
+    if (!user) {
+      return response(res, 404, "کاربری با این شناسه یافت نشد");
+    }
+
+    if (email && email !== user.email) {
+      const isEmailExist = await User.findOne({ where: { email } });
+
+      if (isEmailExist) {
+        return response(res, 400, "این ایمیل قبلا ثبت شده است");
+      }
+    }
+
+    if (req.file) {
+      const fileBuffer = req.file.buffer;
+      const newAvatar = `/images/avatars/${Date.now()}-${
+        req.file.originalname
+      }`;
+
+      await sharp(fileBuffer)
+        .png({ quality: 60 })
+        .toFile(path.join(__dirname, "..", "..", "public", newAvatar));
+
+      if (
+        user.avatar !== "/images/default.jpg" &&
+        fs.existsSync(path.join(__dirname, "..", "..", "public", user.avatar))
+      ) {
+        fs.unlinkSync(path.join(__dirname, "..", "..", "public", user.avatar));
+      }
+
+      user.avatar = newAvatar;
+    }
+
+    user.name = name || user.name;
+    user.email = email || user.email;
+
+    await user.save();
+
+    return response(res, 200, "پروفایل با موفقیت به‌روزرسانی شد", { user });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.deleteAccount = async (req, res, next) => {
   try {
     let user;
@@ -170,7 +248,11 @@ exports.deleteAccount = async (req, res, next) => {
       const { userId } = req.query;
 
       if (!userId) {
-        return response(res, 400, "لطفاً userId را برای حذف حساب کاربری وارد کنید");
+        return response(
+          res,
+          400,
+          "لطفاً userId را برای حذف حساب کاربری وارد کنید"
+        );
       }
 
       user = await User.findByPk(userId);
@@ -183,14 +265,20 @@ exports.deleteAccount = async (req, res, next) => {
       }
 
       if (user.role === "admin") {
-        return response(res, 400, "ادمین نمی‌تواند حساب کاربری یک ادمین دیگر را حذف کند");
+        return response(
+          res,
+          400,
+          "ادمین نمی‌تواند حساب کاربری یک ادمین دیگر را حذف کند"
+        );
       }
     } else {
       user = await User.findByPk(req.user.id);
     }
 
-    if (user.avatar != "/images/default.jpg" &&
-      fs.existsSync(path.join(__dirname, "..", "..", "public", user.avatar))) {
+    if (
+      user.avatar != "/images/default.jpg" &&
+      fs.existsSync(path.join(__dirname, "..", "..", "public", user.avatar))
+    ) {
       fs.unlinkSync(path.join(__dirname, "..", "..", "public", user.avatar));
     }
     await user.destroy();
@@ -200,4 +288,3 @@ exports.deleteAccount = async (req, res, next) => {
     next(err);
   }
 };
-
