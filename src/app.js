@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const response = require("./utils/response");
 const helmet = require("helmet");
 const { setHeaders } = require("./middlewares/setHeaders");
 const rateLimit = require("express-rate-limit");
@@ -10,6 +11,7 @@ const JwtAccessTokenStrategy = require("./strategies/JwtAccessTokenStrategy");
 const JwtRefreshTokenStrategy = require("./strategies/JwtRefreshTokenStrategy");
 const authRoutes = require("./routes/Auth");
 const userRoutes = require("./routes/User");
+const roomsRoutes = require("./routes/Room");
 
 const app = express();
 
@@ -43,18 +45,21 @@ passport.use("refreshToken", JwtRefreshTokenStrategy);
 //* Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/rooms", roomsRoutes);
 
 //* 404 Err Handler
 app.use((req, res) => {
-  return res.status(404).json({
-    message: `404! This ${req.path} Path Not Found! Please Check The Path Or Method...`,
-  });
+  return response(
+    res,
+    404,
+    `404! This ${req.path} Path Not Found! Please Check The Path Or Method...`
+  );
 });
 
 //* Internal Server Err
 app.use((err, res, next) => {
   if (err) {
-    return errResponses(
+    return response(
       res,
       err.statusCode,
       `Internal Server Error: ErrName => ${err.name} ErrMessage => ${err.message}`

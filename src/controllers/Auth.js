@@ -11,8 +11,6 @@ const response = require("./../utils/response");
 
 exports.register = async (req, res, next) => {
   try {
-    console.log(req.file);
-
     const { name, email, password } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 12);

@@ -1,5 +1,4 @@
 const multer = require("multer");
-const response = require("./../utils/response");
 
 const filefilter = (req, file, cb) => {
   if (
@@ -21,7 +20,7 @@ const uploader = (fieldName, isMultiple = false) => {
   });
 
   if (isMultiple) {
-    return upload.fields([{ name: fieldName }]);
+    return upload.array(fieldName);
   }
 
   return upload.single(fieldName);

@@ -18,6 +18,8 @@ const Booking = require("./models/Booking")(db);
 /** @type {import('sequelize').ModelCtor<import('sequelize').Model<any, any>} */
 const Room = require("./models/Room")(db);
 /** @type {import('sequelize').ModelCtor<import('sequelize').Model<any, any>} */
+const RoomImages = require("./models/RoomImages")(db);
+/** @type {import('sequelize').ModelCtor<import('sequelize').Model<any, any>} */
 const Payment = require("./models/Payment")(db);
 
 User.hasMany(Booking, {
@@ -38,4 +40,14 @@ Booking.belongsTo(Room, {
   as: "room",
 });
 
-module.exports = { db, User, Booking, Room, Payment };
+Room.hasMany(RoomImages, {
+  foreignKey: "room_id",
+  as: "images",
+});
+
+RoomImages.belongsTo(Room, {
+  foreignKey: "room_id",
+  as: "room",
+});
+
+module.exports = { db, User, Booking, Room, RoomImages, Payment };

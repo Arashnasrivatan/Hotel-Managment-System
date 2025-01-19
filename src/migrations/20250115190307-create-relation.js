@@ -53,6 +53,30 @@ module.exports = {
         { transaction }
       );
 
+      await queryInterface.createTable("room_images", {
+        id: {
+          type: Sequelize.INTEGER.UNSIGNED,
+          allowNull: false,
+          autoIncrement: true,
+          primaryKey: true,
+        },
+        room_id: {
+          type: Sequelize.INTEGER.UNSIGNED,
+          allowNull: false,
+          references: {
+            model: "rooms",
+            key: "id",
+          },
+          onDelete: "CASCADE",
+          onUpdate: "CASCADE",
+        },
+
+        image_path: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
+      });
+
       await queryInterface.addConstraint(
         "bookings",
         {
@@ -63,10 +87,8 @@ module.exports = {
         { transaction }
       );
 
-      // تایید تراکنش
       await transaction.commit();
     } catch (err) {
-      // در صورت بروز خطا، تراکنش را لغو کنید
       await transaction.rollback();
       throw err;
     }
@@ -80,14 +102,14 @@ module.exports = {
       await queryInterface.removeColumn("bookings", "user_id", { transaction });
       await queryInterface.removeColumn("payments", "booking_id", { transaction });
 
+      await queryInterface.dropTable("room_images", { transaction });
+
       await queryInterface.removeConstraint("bookings", "unique_booking", {
         transaction,
       });
 
-      // تایید تراکنش
       await transaction.commit();
     } catch (err) {
-      // در صورت بروز خطا، تراکنش را لغو کنید
       await transaction.rollback();
       throw err;
     }
