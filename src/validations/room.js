@@ -52,4 +52,40 @@ const roomValidationSchema = yup.object().shape({
     .typeError("امکانات باید یک آرایه از رشته ها باشد"),
 });
 
-module.exports = roomValidationSchema;
+const updateRoomValidateSchema = yup.object().shape({
+  room_number: yup
+    .number()
+    .optional("شماره اتاق الزامی است")
+    .positive("شماره اتاق باید مثبت باشد")
+    .integer("شماره اتاق باید یک عدد صحیح باشد")
+    .typeError("شماره اتاق باید یک عدد معتبر باشد"),
+  floor: yup
+    .number()
+    .optional("طبقه الزامی است")
+    .positive("طبقه باید مثبت باشد")
+    .integer("طبقه باید یک عدد صحیح باشد")
+    .typeError("طبقه باید یک عدد معتبر باشد"),
+  room_type: yup
+    .string()
+    .optional("نوع اتاق الزامی است")
+    .oneOf(
+      ["single", "double", "suite"],
+      "نوع اتاق باید یکی از موارد 'single', 'double' یا 'suite' باشد"
+    ),
+  capacity: yup
+    .number()
+    .optional("ظرفیت الزامی است")
+    .positive("ظرفیت باید مثبت باشد")
+    .integer("ظرفیت باید یک عدد صحیح باشد")
+    .min(1, "ظرفیت نمی تواند کمتر از 1 باشد")
+    .max(10, "ظرفیت نمی تواند بیشتر از 10 باشد")
+    .typeError("ظرفیت باید یک عدد معتبر باشد"),
+  price_per_night: yup
+    .number()
+    .optional("قیمت هر شب الزامی است")
+    .positive("قیمت هر شب باید مثبت باشد")
+    .integer("قیمت هر شب باید یک عدد صحیح باشد")
+    .typeError("قیمت هر شب باید یک عدد معتبر باشد"),
+});
+
+module.exports = { roomValidationSchema, updateRoomValidateSchema };

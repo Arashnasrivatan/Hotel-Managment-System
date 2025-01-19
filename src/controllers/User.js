@@ -11,18 +11,25 @@ const response = require("./../utils/response");
 
 exports.getUsers = async (req, res, next) => {
   try {
+    const userId = parseInt(req.query.userId) || null;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
+    let where = {};
+    if (userId) where.id = userId;
+
     const users = await User.findAll({
       attributes: { exclude: ["password"] },
+      where,
       limit,
       offset,
       raw: true,
     });
 
-    const usersCount = await User.count();
+    const usersCount = await User.count({ where });
+
+    if(!usersCount) return response(res, 404, "کاربری با این شناسه یافت نشد");
 
     return response(res, 200, "لیست کاربران با موفقیت گرفته شد", {
       usersCount,

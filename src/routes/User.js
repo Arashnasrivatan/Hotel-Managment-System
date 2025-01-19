@@ -7,10 +7,17 @@ const { changePassword } = require("../validations/Password");
 const updateProfile = require("../validations/update");
 const passport = require("passport");
 const uploader = require("../middlewares/uploader");
+const isAdmin = require("../middlewares/isAdmin");
 
 const router = express.Router();
 
-router.route("/").get(controller.getUsers);
+router
+  .route("/")
+  .get(
+    passport.authenticate("accessToken", { session: false }),
+    isAdmin,
+    controller.getUsers
+  );
 
 router
   .route("/forgot-password")
