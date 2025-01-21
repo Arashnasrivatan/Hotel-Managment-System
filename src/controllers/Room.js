@@ -152,9 +152,7 @@ exports.updateRoom = async (req, res, next) => {
 
     const { id } = req.params;
 
-    const room = await Room.findByPk(id, {
-      raw: true,
-    });
+    const room = await Room.findByPk(id);
 
     if (!room) {
       return response(res, 404, "اتاق با این شناسه یافت نشد");
@@ -177,8 +175,8 @@ exports.updateRoom = async (req, res, next) => {
     room.price_per_night = price_per_night || room.price_per_night;
 
     await room.save();
-
-    return response(res, 200, "اتاق با موفقیت ویرایش شد");
+    room.amenities = room.amenities.replace(/"/g, "");
+    return response(res, 200, "اتاق با موفقیت ویرایش شد", room);
   } catch (err) {
     next(err);
   }
