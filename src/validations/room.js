@@ -1,6 +1,6 @@
 const yup = require("yup");
 
-const roomValidationSchema = yup.object().shape({
+const roomValidateSchema = yup.object().shape({
   room_number: yup
     .number()
     .required("شماره اتاق الزامی است")
@@ -88,4 +88,4 @@ const updateRoomValidateSchema = yup.object().shape({
     .typeError("قیمت هر شب باید یک عدد معتبر باشد"),
 });
 
-module.exports = { roomValidationSchema, updateRoomValidateSchema };
+module.exports = { roomValidateSchema, updateRoomValidateSchema };

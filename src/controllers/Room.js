@@ -2,6 +2,7 @@ const { Room, RoomImages } = require("./../db");
 const response = require("./../utils/response");
 const sharp = require("sharp");
 const path = require("path");
+const fs = require("fs");
 
 exports.getRooms = async (req, res, next) => {
   try {
@@ -177,6 +178,141 @@ exports.updateRoom = async (req, res, next) => {
     await room.save();
     room.amenities = room.amenities.replace(/"/g, "");
     return response(res, 200, "اتاق با موفقیت ویرایش شد", room);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteRoom = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const room = await Room.findByPk(id);
+
+    if (!room) {
+      return response(res, 404, "اتاق با این شناسه یافت نشد");
+    }
+
+    const roomImages = await RoomImages.findAll({
+      where: { room_id: id },
+    });
+
+    if (roomImages) {
+      roomImages.forEach(async (image) => {
+        await image.destroy();
+        const imagePath = path.join(
+          __dirname,
+          "..",
+          "..",
+          "public",
+          image.image_path
+        );
+
+        fs.unlink(imagePath, (err) => {
+          if (err) {
+            console.error("Error deleting image:", err);
+          }
+        });
+      });
+    }
+
+    await room.destroy();
+    return response(res, 200, "اتاق با موفقیت حذف شد");
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.addImage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const room = await Room.findByPk(id);
+
+    if (!room) {
+      return response(res, 404, "اتاق با این شناسه یافت نشد");
+    }
+    if (!req.files || req.files.length === 0) {
+      return response(res, 400, "حداقل یک عکس باید برای اتاق آپلود شود");
+    }
+
+    const uploadDir = path.join(
+      __dirname,
+      "..",
+      "..",
+      "public",
+      "images",
+      "rooms"
+    );
+    req.files.forEach(async (file) => {
+      const fileBuffer = file.buffer;
+      const fileName = `${Date.now()}_${file.originalname}`;
+      const filePath = path.join(uploadDir, fileName);
+
+      await sharp(fileBuffer).png({ quality: 50 }).toFile(filePath);
+
+      await RoomImages.create({
+        room_id: id,
+        image_path: `/images/rooms/${fileName}`,
+      });
+    });
+
+    return response(res, 201, "تصویر با موفقیت اضافه شد");
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getRoomImages = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const room = await Room.findByPk(id);
+
+    if (!room) {
+      return response(res, 404, "اتاق با این شناسه یافت نشد");
+    }
+
+    const roomImages = await RoomImages.findAll({
+      where: { room_id: id },
+      attributes: {
+        exclude: ["room_id"],
+      },
+    });
+
+    return response(res, 200, "تصاویر اتاق با موفقیت گرفته شد", roomImages);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteRoomImage = async (req, res, next) => {
+  try {
+    const { imageId } = req.params;
+    const roomImage = await RoomImages.findByPk(imageId, {
+      attributes: {
+        exclude: ["room_id"],
+      },
+    });
+
+    if (!roomImage) {
+      return response(res, 404, "تصویر با این شناسه یافت نشد");
+    }
+
+    const imagePath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "public",
+      roomImage.image_path
+    );
+
+    fs.unlink(imagePath, (err) => {
+      if (err) {
+        console.error("Error deleting image:", err);
+      }
+    });
+
+    await roomImage.destroy();
+    return response(res, 200, "تصویر با موفقیت حذف شد", roomImage);
   } catch (err) {
     next(err);
   }
