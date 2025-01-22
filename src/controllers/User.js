@@ -19,7 +19,7 @@ exports.getUsers = async (req, res, next) => {
     let where = {};
     if (userId) where.id = userId;
 
-    const users = await User.findAll({
+    const users = await User.findAndCountAll({
       attributes: { exclude: ["password"] },
       where,
       limit,
@@ -27,15 +27,15 @@ exports.getUsers = async (req, res, next) => {
       raw: true,
     });
 
-    const usersCount = await User.count({ where });
-
-    if(!usersCount) return response(res, 404, "کاربری با این شناسه یافت نشد");
+    if (users.count === 0) {
+      return response(res, 404, "هیچ کاربری یافت نشد");
+    }
 
     return response(res, 200, "لیست کاربران با موفقیت گرفته شد", {
-      usersCount,
+      total: users.count,
       currentPage: page,
-      totalPages: Math.ceil(usersCount / limit),
-      users,
+      totalPages: Math.ceil(users.count / limit),
+      users: users.rows,
     });
   } catch (err) {
     next(err);

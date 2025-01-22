@@ -8,6 +8,7 @@ const db = new Sequelize({
   password: configs.db.password,
   database: configs.db.name,
   dialect: configs.db.dialect,
+  timezone: "+03:30",
   logging: configs.isProduction ? false : console.log,
 });
 

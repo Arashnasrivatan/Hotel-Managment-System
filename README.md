@@ -42,7 +42,7 @@ Welcome to the **Hotel Booking API**! This API allows users to register, book ro
 | `/rooms/:id`           | `DELETE` | Delete a room                          | Admin    |
 | `/rooms/:id/images`    | `POST` | Upload images for a room                | Admin    |
 | `/rooms/:id/images`    | `GET`  | Retrieve all images for a room          | Public   |
-| `/rooms/:id/images/:imageId` | `DELETE` | Remove a specific room image        | Admin    |
+| `/rooms/images/:imageId` | `DELETE` | Remove a specific room image        | Admin    |
 
 ### **4. Bookings**
 | Endpoint                      | Method | Description                                 | Access   |
