@@ -10,7 +10,6 @@ const Payment = (sequelize) =>
         primaryKey: true,
         autoIncrement: true,
       },
-      //TODO: booking_id
       amount: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
@@ -27,6 +26,16 @@ const Payment = (sequelize) =>
         validate: {
           isIn: [["pending", "paid", "failed"]],
         },
+      },
+      booking_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+          model: "Booking",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
     },
     {

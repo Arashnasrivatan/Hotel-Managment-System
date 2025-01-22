@@ -1,16 +1,14 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Bookings', {
+    await queryInterface.createTable("Bookings", {
       id: {
         type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true,
       },
-      //TODO: user_id
-      //TODO: room_id
       check_in_date: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -28,6 +26,26 @@ module.exports = {
           isIn: [["pending", "confirmed", "canceled"]],
         },
       },
+      user_id: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
+      room_id: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+          model: "Rooms",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -41,6 +59,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Bookings');
-  }
+    await queryInterface.dropTable("Bookings");
+  },
 };

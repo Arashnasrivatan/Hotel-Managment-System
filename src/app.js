@@ -12,6 +12,7 @@ const JwtRefreshTokenStrategy = require("./strategies/JwtRefreshTokenStrategy");
 const authRoutes = require("./routes/Auth");
 const userRoutes = require("./routes/User");
 const roomsRoutes = require("./routes/Room");
+const bookingRoutes = require("./routes/Booking");
 
 const app = express();
 
@@ -46,6 +47,7 @@ passport.use("refreshToken", JwtRefreshTokenStrategy);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/rooms", roomsRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 //* 404 Err Handler
 app.use((req, res) => {
@@ -55,6 +57,8 @@ app.use((req, res) => {
     `404! This ${req.path} Path Not Found! Please Check The Path Or Method...`
   );
 });
+
+//TODO: Error Handler
 
 //* Internal Server Err
 app.use((err, res, next) => {
@@ -67,4 +71,5 @@ app.use((err, res, next) => {
   }
   next();
 });
+
 module.exports = app;

@@ -5,54 +5,6 @@ module.exports = {
     const transaction = await queryInterface.sequelize.transaction();
 
     try {
-      await queryInterface.addColumn(
-        "payments",
-        "booking_id",
-        {
-          type: Sequelize.INTEGER.UNSIGNED,
-          allowNull: false,
-          references: {
-            model: "bookings",
-            key: "id",
-          },
-          onDelete: "CASCADE",
-          onUpdate: "CASCADE",
-        },
-        { transaction }
-      );
-
-      await queryInterface.addColumn(
-        "bookings",
-        "user_id",
-        {
-          type: Sequelize.INTEGER.UNSIGNED,
-          allowNull: false,
-          references: {
-            model: "users",
-            key: "id",
-          },
-          onDelete: "CASCADE",
-          onUpdate: "CASCADE",
-        },
-        { transaction }
-      );
-
-      await queryInterface.addColumn(
-        "bookings",
-        "room_id",
-        {
-          type: Sequelize.INTEGER.UNSIGNED,
-          allowNull: false,
-          references: {
-            model: "rooms",
-            key: "id",
-          },
-          onDelete: "CASCADE",
-          onUpdate: "CASCADE",
-        },
-        { transaction }
-      );
-
       await queryInterface.createTable("room_images", {
         id: {
           type: Sequelize.INTEGER.UNSIGNED,
@@ -100,7 +52,9 @@ module.exports = {
     try {
       await queryInterface.removeColumn("bookings", "room_id", { transaction });
       await queryInterface.removeColumn("bookings", "user_id", { transaction });
-      await queryInterface.removeColumn("payments", "booking_id", { transaction });
+      await queryInterface.removeColumn("payments", "booking_id", {
+        transaction,
+      });
 
       await queryInterface.dropTable("room_images", { transaction });
 

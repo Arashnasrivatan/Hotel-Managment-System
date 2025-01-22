@@ -10,8 +10,6 @@ const Booking = (sequelize) =>
         primaryKey: true,
         autoIncrement: true,
       },
-      //TODO: user_id
-      //TODO: room_id
       check_in_date: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -28,7 +26,27 @@ const Booking = (sequelize) =>
         validate: {
           isIn: [["pending", "confirmed", "canceled"]],
         },
-      }
+      },
+      user_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
+      room_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+          model: "Rooms",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
     },
     {
       tableName: "bookings",
