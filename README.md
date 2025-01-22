@@ -50,7 +50,6 @@ Welcome to the **Hotel Booking API**! This API allows users to register, book ro
 | `/bookings`                   | `GET`  | Get all bookings (Admin sees all, user sees their own) | Admin/User |
 | `/bookings/:id`               | `GET`  | Get booking details                         | Admin/User |
 | `/bookings`                   | `POST` | Create a new booking                        | User     |
-| `/bookings/:id`               | `PUT`  | Update a booking                           | User     |
 | `/bookings/:id`               | `DELETE` | Cancel a booking                          | User     |
 | `/bookings/availability`      | `POST` | Check room availability for a given date range | Public   |
 
@@ -59,7 +58,7 @@ Welcome to the **Hotel Booking API**! This API allows users to register, book ro
 |------------------------|--------|----------------------------------|----------|
 | `/payments`            | `GET`  | List all payments                | Admin    |
 | `/payments/:id`        | `GET`  | Get details of a specific payment| Admin    |
-| `/payments`            | `POST` | Record a new payment             | User     |
+| `/payments`            | `POST` | Record a new payment             | Admin     |
 | `/payments/:id`        | `PUT`  | Update payment details           | Admin    |
 | `/payments/:id`        | `DELETE` | Delete a payment                | Admin    |
 

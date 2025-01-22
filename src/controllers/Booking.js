@@ -141,7 +141,7 @@ exports.getBooking = async (req, res, next) => {
       where = { id, user_id: user.id };
     }
     const booking = await Booking.findByPk(id, {
-      where
+      where,
     });
 
     if (!booking) {
@@ -149,6 +149,60 @@ exports.getBooking = async (req, res, next) => {
     }
 
     return response(res, 200, "رزرو با موفقیت یافت شد", booking);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.cancelBooking = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const { id } = req.params;
+
+    let where = {};
+
+    if (user.role === "admin") {
+      where = { id };
+    } else {
+      where = { id, user_id: user.id };
+    }
+
+    const booking = await Booking.findByPk(id, {
+      where,
+    });
+
+    if (!booking) {
+      return response(res, 404, "رزروی با این شناسه یافت نشد");
+    }
+
+    const payment = await Payment.findOne({
+      where: {
+        booking_id: id,
+        payment_status: "pending",
+        payment_date: {
+          [Op.lte]: new Date(),
+        }
+      },
+    })
+
+    if (payment) {
+      payment.payment_status = "failed";
+      await payment.save();
+    }
+
+    const now = Date.now();
+    if (booking.check_in_date <= now) {
+      return response(res, 400, "شما نمیتوانید رزرو رو در روز ورود لغو کنید");
+    }
+
+    if (booking.status !== "pending") {
+      return response(res, 400, "رزرو در خالت انتظار شده است");
+    }
+
+    booking.status = "canceled";
+    await booking.save();
+
+    return response(res, 200, "رزرو با موفقیت لغو شد");
   } catch (err) {
     next(err);
   }

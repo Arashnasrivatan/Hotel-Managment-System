@@ -24,6 +24,10 @@ router
   .get(
     passport.authenticate("accessToken", { session: false }),
     controller.getBooking
+  )
+  .delete(
+    passport.authenticate("accessToken", { session: false }),
+    controller.cancelBooking
   );
 
 module.exports = router;
