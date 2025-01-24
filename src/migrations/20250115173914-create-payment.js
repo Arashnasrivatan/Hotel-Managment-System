@@ -26,6 +26,15 @@ module.exports = {
           isIn: [["pending", "paid", "failed"]],
         },
       },
+      payment_type: {
+        type: Sequelize.ENUM,
+        values: ["normal", "return"],
+        allowNull: false,
+        defaultValue: "normal",
+        validate: {
+          isIn: [["normal", "return"]],
+        },
+      },
       booking_id: {
         type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,

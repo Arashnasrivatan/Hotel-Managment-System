@@ -1,7 +1,10 @@
 const express = require("express");
 const controller = require("./../controllers/Booking");
 const validate = require("./../middlewares/validate");
-const bookingValidateSchema = require("./../validations/booking");
+const {
+  bookingValidateSchema,
+  updatebookingValidateSchema,
+} = require("./../validations/booking");
 const passport = require("passport");
 const isAdmin = require("./../middlewares/isAdmin");
 
@@ -24,6 +27,11 @@ router
   .get(
     passport.authenticate("accessToken", { session: false }),
     controller.getBooking
+  )
+  .put(
+    passport.authenticate("accessToken", { session: false }),
+    validate(updatebookingValidateSchema),
+    controller.update
   )
   .delete(
     passport.authenticate("accessToken", { session: false }),

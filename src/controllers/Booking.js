@@ -110,7 +110,7 @@ exports.create = async (req, res, next) => {
       payment_status: newPayment.payment_status,
       payment_date: newPayment.payment_date,
       booking_id: newPayment.booking_id,
-      amount: newPayment.amount,
+      amount: totalAmount,
     };
 
     //TODO Payment link
@@ -154,6 +154,184 @@ exports.getBooking = async (req, res, next) => {
   }
 };
 
+//! Bug
+exports.update = async (req, res, next) => {
+  try {
+    const { room_id, check_in_date, check_out_date } = req.body;
+    const { id } = req.params;
+
+    const booking = await Booking.findByPk(id);
+
+    if (!booking) {
+      return response(res, 404, "رزروی با این شناسه یافت نشد");
+    }
+
+    if (req.user.role != "admin" && booking.user_id != req.user.id) {
+      return response(res, 403, "شما اجازه ویرایش این رزرو را ندارید");
+    }
+
+    if (booking.status != "confirmed") {
+      return response(
+        res,
+        400,
+        "رزرو مد نظر شما لغو شده یا در انتظار پرداخت است"
+      );
+    }
+
+    if (
+      (!room_id || room_id == booking.room_id) &&
+      (!check_in_date ||
+        moment(check_in_date, "MM/DD/YYYY").isSame(
+          moment(booking.check_in_date),
+          "minute"
+        )) &&
+      (!check_out_date ||
+        moment(check_out_date, "MM/DD/YYYY").isSame(
+          moment(booking.check_out_date),
+          "minute"
+        ))
+    ) {
+      return response(res, 400, "هیچ فیلدی تغییر نکرده است");
+    }
+
+    const today = moment().startOf("day");
+    const bookingCheckInDate = moment(booking.check_in_date).startOf("day");
+
+    if (bookingCheckInDate.isSameOrBefore(today)) {
+      return response(
+        res,
+        400,
+        "امکان ویرایش رزرو پس از تاریخ ورود یا در همان روز وجود ندارد"
+      );
+    }
+
+    let room = null;
+    let isRoomChanged = false;
+
+    if (room_id && room_id !== booking.room_id) {
+      room = await Room.findByPk(room_id);
+      if (!room) {
+        return response(res, 404, "اتاق با این شناسه یافت نشد");
+      }
+      isRoomChanged = true;
+    } else {
+      room = await Room.findByPk(booking.room_id);
+    }
+
+    let checkInWithTime = moment(booking.check_in_date).set({
+      hour: 14,
+      minute: 0,
+      second: 0,
+    });
+
+    let checkOutWithTime = moment(booking.check_out_date).set({
+      hour: 12,
+      minute: 0,
+      second: 0,
+    });
+
+    if (check_in_date) {
+      checkInWithTime = moment(check_in_date).set({
+        hour: 14,
+        minute: 0,
+        second: 0,
+      });
+      if (!checkInWithTime.isValid()) {
+        return response(res, 400, "تاریخ ورود به هتل معتبر نیست");
+      }
+    }
+
+    if (check_out_date) {
+      checkOutWithTime = moment(check_out_date).set({
+        hour: 12,
+        minute: 0,
+        second: 0,
+      });
+      if (!checkOutWithTime.isValid()) {
+        return response(res, 400, "تاریخ خروج از هتل معتبر نیست");
+      }
+    }
+
+    const existingBooking = await Booking.findOne({
+      where: {
+        room_id: room.id,
+        check_in_date: { [Op.lte]: checkOutWithTime.toDate() },
+        check_out_date: { [Op.gte]: checkInWithTime.toDate() },
+        id: { [Op.ne]: booking.id },
+      },
+    });
+
+    if (existingBooking) {
+      return response(res, 400, "اتاق در این تاریخ قابل ویرایش رزرو نیست");
+    }
+
+    const nights = checkOutWithTime.diff(checkInWithTime, "days");
+    if (!nights || nights <= 0) {
+      return response(res, 400, "تاریخ‌های وارد شده معتبر نیستند");
+    }
+
+    const totalAmount = room.price_per_night * nights;
+
+    const payments = await Payment.findAll({
+      where: { booking_id: booking.id, payment_type: "normal" },
+    });
+    
+    const totalPaid = payments.reduce((sum, payment) => {
+      return sum + (payment.payment_status === "paid" ? payment.amount : 0);
+    }, 0);
+    
+    let returnAmount = 0;
+    let newPayment = null;
+    let newReturnPayment = null;
+
+    if (totalPaid > totalAmount) {
+      returnAmount = totalPaid - totalAmount;
+      newReturnPayment = await Payment.create({
+        amount: returnAmount,
+        payment_date: new Date(),
+        payment_status: "pending",
+        payment_type: "return",
+        booking_id: booking.id,
+      })
+    } else if (totalPaid < totalAmount) {
+      newPayment = await Payment.create({
+        amount: totalAmount - totalPaid,
+        payment_date: new Date(),
+        booking_id: booking.id,
+      });
+      booking.status = "pending";
+    }
+    
+
+    booking.room_id = room_id || booking.room_id;
+    booking.check_in_date = check_in_date || booking.check_in_date;
+    booking.check_out_date = check_out_date || booking.check_out_date;
+
+    await booking.save();
+
+    let message = "رزرو با موفقیت ویرایش شد";
+    if (returnAmount)
+      message += ` شما میتوانید با تماس با پشتیبانی مبلغ ${returnAmount} را دریافت کنید`;
+    if (newPayment)
+      message += ` لطفا صورت حساب جدید را به مبلغ ${newPayment.amount} پرداخت کنید`;
+
+    const responseData = {
+      total_nights: nights,
+      total_amount: totalAmount,
+      booking,
+      isRoomChanged,
+    };
+
+    if (returnAmount) responseData.returnAmount = returnAmount;
+    if (newPayment) responseData.newPayment = newPayment;
+    if (newReturnPayment) responseData.newReturnPayment;
+
+    return response(res, 200, message, responseData);
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.cancelBooking = async (req, res, next) => {
   try {
     const user = req.user;
@@ -181,9 +359,9 @@ exports.cancelBooking = async (req, res, next) => {
         payment_status: "pending",
         payment_date: {
           [Op.lte]: new Date(),
-        }
+        },
       },
-    })
+    });
 
     if (payment) {
       payment.payment_status = "failed";
