@@ -4,6 +4,7 @@ const validate = require("./../middlewares/validate");
 const {
   bookingValidateSchema,
   updatebookingValidateSchema,
+  availabilityValidateSchema
 } = require("./../validations/booking");
 const passport = require("passport");
 const isAdmin = require("./../middlewares/isAdmin");
@@ -37,5 +38,7 @@ router
     passport.authenticate("accessToken", { session: false }),
     controller.cancelBooking
   );
+
+router.route("/availability").post(validate(availabilityValidateSchema),controller.checkAvailability);
 
 module.exports = router;

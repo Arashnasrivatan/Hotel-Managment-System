@@ -275,11 +275,11 @@ exports.update = async (req, res, next) => {
     const payments = await Payment.findAll({
       where: { booking_id: booking.id, payment_type: "normal" },
     });
-    
+
     const totalPaid = payments.reduce((sum, payment) => {
       return sum + (payment.payment_status === "paid" ? payment.amount : 0);
     }, 0);
-    
+
     let returnAmount = 0;
     let newPayment = null;
     let newReturnPayment = null;
@@ -292,7 +292,7 @@ exports.update = async (req, res, next) => {
         payment_status: "pending",
         payment_type: "return",
         booking_id: booking.id,
-      })
+      });
     } else if (totalPaid < totalAmount) {
       newPayment = await Payment.create({
         amount: totalAmount - totalPaid,
@@ -301,7 +301,6 @@ exports.update = async (req, res, next) => {
       });
       booking.status = "pending";
     }
-    
 
     booking.room_id = room_id || booking.room_id;
     booking.check_in_date = check_in_date || booking.check_in_date;
@@ -381,6 +380,68 @@ exports.cancelBooking = async (req, res, next) => {
     await booking.save();
 
     return response(res, 200, "رزرو با موفقیت لغو شد");
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.checkAvailability = async (req, res, next) => {
+  try {
+    const { check_in_date, check_out_date } = req.body;
+
+    if (!check_in_date || !check_out_date) {
+      return response(res, 400, "تاریخ ورود و خروج الزامی است");
+    }
+
+    const checkInWithTime = moment(check_in_date, "MM/DD/YYYY").set({
+      hour: 14,
+      minute: 0,
+      second: 0,
+    });
+    const checkOutWithTime = moment(check_out_date, "MM/DD/YYYY").set({
+      hour: 12,
+      minute: 0,
+      second: 0,
+    });
+
+    if (!checkInWithTime.isValid() || !checkOutWithTime.isValid()) {
+      return response(res, 400, "تاریخ‌های وارد شده معتبر نیستند");
+    }
+
+    if (checkOutWithTime.isSameOrBefore(checkInWithTime)) {
+      return response(res, 400, "تاریخ خروج باید بعد از تاریخ ورود باشد");
+    }
+
+    const bookedRoomIds = await Booking.findAll({
+      attributes: ["room_id"],
+      where: {
+        [Op.or]: [
+          {
+            check_in_date: {
+              [Op.lte]: checkOutWithTime.toDate(),
+            },
+            check_out_date: {
+              [Op.gte]: checkInWithTime.toDate(),
+            },
+          },
+        ],
+      },
+    });
+
+    const bookedRoomIdList = bookedRoomIds.map((booking) => booking.room_id);
+
+    const availableRooms = await Room.findAll({
+      where: {
+        id: { [Op.notIn]: bookedRoomIdList },
+      },
+    });
+
+    return response(
+      res,
+      200,
+      "اتاق‌های در دسترس با موفقیت یافت شدند",
+      availableRooms
+    );
   } catch (err) {
     next(err);
   }
