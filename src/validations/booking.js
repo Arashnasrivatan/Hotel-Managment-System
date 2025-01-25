@@ -9,11 +9,11 @@ const bookingValidateSchema = yup.object().shape({
     .positive("شماره اتاق باید مثبت باشد"),
   check_in_date: yup
     .date()
-    .required("تاریخ ورود شده معتبر نیست")
+    .required("تاریخ ورود معتبر نیست")
     .typeError("تاریخ ورود باید یک تاریخ معتبر باشد"),
   check_out_date: yup
     .date()
-    .required("تاریخ خروج شده معتبر نیست")
+    .required("تاریخ خروج معتبر نیست")
     .typeError("تاریخ خروج باید یک تاریخ معتبر باشد")
     .min(
       yup.ref("check_in_date"),
@@ -30,26 +30,22 @@ const updatebookingValidateSchema = yup.object().shape({
     .positive("شماره اتاق باید مثبت باشد"),
   check_in_date: yup
     .date()
-    .optional("تاریخ ورود شده معتبر نیست")
+    .optional("تاریخ ورود معتبر نیست")
     .typeError("تاریخ ورود باید یک تاریخ معتبر باشد"),
   check_out_date: yup
     .date()
-    .optional("تاریخ خروج شده معتبر نیست")
+    .optional("تاریخ خروج معتبر نیست")
     .typeError("تاریخ خروج باید یک تاریخ معتبر باشد")
-    .min(
-      yup.ref("check_in_date"),
-      "تاریخ خروج نمی تواند قبل از تاریخ ورود باشد"
-    ),
 });
 
 const availabilityValidateSchema = yup.object().shape({
   check_in_date: yup
     .date()
-    .optional("تاریخ ورود شده معتبر نیست")
+    .optional("تاریخ ورود معتبر نیست")
     .typeError("تاریخ ورود باید یک تاریخ معتبر باشد"),
   check_out_date: yup
     .date()
-    .optional("تاریخ خروج شده معتبر نیست")
+    .optional("تاریخ خروج معتبر نیست")
     .typeError("تاریخ خروج باید یک تاریخ معتبر باشد")
     .min(
       yup.ref("check_in_date"),

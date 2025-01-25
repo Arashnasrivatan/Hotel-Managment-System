@@ -154,7 +154,6 @@ exports.getBooking = async (req, res, next) => {
   }
 };
 
-//! Bug
 exports.update = async (req, res, next) => {
   try {
     const { room_id, check_in_date, check_out_date } = req.body;
@@ -194,8 +193,16 @@ exports.update = async (req, res, next) => {
       return response(res, 400, "هیچ فیلدی تغییر نکرده است");
     }
 
+    const pendingPayments = await Payment.findAll({
+      where: {
+        booking_id: id,
+        payment_status: "pending",
+      },
+    });
+
     const today = moment().startOf("day");
     const bookingCheckInDate = moment(booking.check_in_date).startOf("day");
+    const bookingCheckOutDate = moment(booking.check_out_date).startOf("day");
 
     if (bookingCheckInDate.isSameOrBefore(today)) {
       return response(
@@ -203,6 +210,30 @@ exports.update = async (req, res, next) => {
         400,
         "امکان ویرایش رزرو پس از تاریخ ورود یا در همان روز وجود ندارد"
       );
+    }
+
+    if (check_in_date && bookingCheckInDate.isAfter(bookingCheckOutDate)) {
+      return response(res, 400, "تاریخ ورود نمی تواند بعد از تاریخ خروج باشد");
+    }
+
+    if (check_out_date && bookingCheckOutDate.isBefore(bookingCheckInDate)) {
+      return response(res, 400, "تاریخ خروج نمی تواند قبل از تاریخ ورود باشد");
+    }
+
+    const hasPendingReturn = pendingPayments.some(
+      (payment) => payment.payment_type === "return"
+    );
+    const hasPendingNormal = pendingPayments.some(
+      (payment) => payment.payment_type === "normal"
+    );
+
+    if (hasPendingReturn || hasPendingNormal) {
+      let message = null;
+      if (hasPendingNormal) message = "شما هنوز مبلغ رزرو را پرداخت نکرده‌اید.";
+      if (hasPendingReturn)
+        message =
+          "هتل مبلغی به شما بدهکار است لطفا از طریق پشتیبانی مبلغ خود را دریافت کنید.";
+      return response(res, 400, message, pendingPayments);
     }
 
     let room = null;
@@ -216,6 +247,9 @@ exports.update = async (req, res, next) => {
       isRoomChanged = true;
     } else {
       room = await Room.findByPk(booking.room_id);
+      if (!room) {
+        return response(res, 404, "اتاق با این شناسه یافت نشد");
+      }
     }
 
     let checkInWithTime = moment(booking.check_in_date).set({
@@ -255,9 +289,25 @@ exports.update = async (req, res, next) => {
     const existingBooking = await Booking.findOne({
       where: {
         room_id: room.id,
-        check_in_date: { [Op.lte]: checkOutWithTime.toDate() },
-        check_out_date: { [Op.gte]: checkInWithTime.toDate() },
         id: { [Op.ne]: booking.id },
+        [Op.or]: [
+          {
+            check_in_date: {
+              [Op.between]: [
+                checkInWithTime.toDate(),
+                checkOutWithTime.toDate(),
+              ],
+            },
+          },
+          {
+            check_out_date: {
+              [Op.between]: [
+                checkInWithTime.toDate(),
+                checkOutWithTime.toDate(),
+              ],
+            },
+          },
+        ],
       },
     });
 
@@ -273,11 +323,18 @@ exports.update = async (req, res, next) => {
     const totalAmount = room.price_per_night * nights;
 
     const payments = await Payment.findAll({
-      where: { booking_id: booking.id, payment_type: "normal" },
+      where: { booking_id: booking.id },
     });
 
     const totalPaid = payments.reduce((sum, payment) => {
-      return sum + (payment.payment_status === "paid" ? payment.amount : 0);
+      if (payment.payment_status === "paid") {
+        if (payment.payment_type === "normal") {
+          return sum + payment.amount;
+        } else if (payment.payment_type === "return") {
+          return sum - payment.amount;
+        }
+      }
+      return sum;
     }, 0);
 
     let returnAmount = 0;
@@ -303,8 +360,8 @@ exports.update = async (req, res, next) => {
     }
 
     booking.room_id = room_id || booking.room_id;
-    booking.check_in_date = check_in_date || booking.check_in_date;
-    booking.check_out_date = check_out_date || booking.check_out_date;
+    booking.check_in_date = checkInWithTime || booking.check_in_date;
+    booking.check_out_date = checkOutWithTime || booking.check_out_date;
 
     await booking.save();
 
