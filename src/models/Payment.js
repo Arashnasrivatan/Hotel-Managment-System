@@ -17,6 +17,7 @@ const Payment = (sequelize) =>
       payment_date: {
         type: DataTypes.DATE,
         allowNull: false,
+        defaultValue: DataTypes.NOW,
       },
       payment_status: {
         type: DataTypes.ENUM,

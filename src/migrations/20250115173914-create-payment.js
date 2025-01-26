@@ -16,6 +16,7 @@ module.exports = {
       payment_date: {
         type: Sequelize.DATE,
         allowNull: false,
+        defaultValue: Sequelize.NOW,
       },
       payment_status: {
         type: Sequelize.ENUM,
