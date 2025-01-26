@@ -86,27 +86,27 @@ exports.getPayment = async (req, res, next) => {
     const payment = await Payment.findByPk(id, {
       attributes: { exclude: ["booking_id"] },
       include: [
-              {
-                  model: Booking,
-                  as: "booking",
-                  attributes: {
-                      exclude: ["user_id", "room_id", "created_at", "updated_at"],
-                  },
-                  include: [
-                      {
-                          model: User,
-                          as: "user",
-                          attributes: { exclude: ["password", "created_at", "updated_at"] },
-                      },
-                      {
-                          model: Room,
-                          as: "room",
-                          attributes: {
-                              exclude: ["amenities", "created_at", "updated_at"],
-                          },
-                      },
-                  ],
-              }
+        {
+          model: Booking,
+          as: "booking",
+          attributes: {
+            exclude: ["user_id", "room_id", "created_at", "updated_at"],
+          },
+          include: [
+            {
+              model: User,
+              as: "user",
+              attributes: { exclude: ["password", "created_at", "updated_at"] },
+            },
+            {
+              model: Room,
+              as: "room",
+              attributes: {
+                exclude: ["amenities", "created_at", "updated_at"],
+              },
+            },
+          ],
+        },
       ],
       raw: true,
     });
@@ -121,6 +121,19 @@ exports.getPayment = async (req, res, next) => {
 
 exports.updatePayment = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const payment = await Payment.findByPk(id);
+    if (!payment) {
+      return response(res, 404, "تراکنش با این شناسه یافت نشد");
+    }
+
+    const { amount, payment_status, payment_type } = req.body;
+    payment.amount = amount || payment.amount;
+    payment.payment_status = payment_status || payment.payment_status;
+    payment.payment_type = payment_type || payment.payment_type;
+
+    await payment.save();
+    return response(res, 200, "تراکنش با موفقیت بروز رسانی شد", payment);
   } catch (err) {
     next(err);
   }
@@ -128,6 +141,13 @@ exports.updatePayment = async (req, res, next) => {
 
 exports.deletePayment = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const payment = await Payment.findByPk(id);
+    if (!payment) {
+      return response(res, 404, "تراکنش با این شناسه یافت نشد");
+    }
+    await payment.destroy();
+    return response(res, 200, "تراکنش با موفقیت حذف شد");
   } catch (err) {
     next(err);
   }
