@@ -1,0 +1,35 @@
+const express = require("express");
+const controller = require("./../controllers/Payment");
+const validate = require("./../middlewares/validate");
+const passport = require("passport");
+const isAdmin = require("../middlewares/isAdmin");
+
+const router = express.Router();
+
+router
+  .route("/")
+  .get(
+    passport.authenticate("accessToken", { session: false }),
+    isAdmin,
+    controller.getPayments
+  )
+  .post(
+    passport.authenticate("accessToken", { session: false }),
+    isAdmin,
+    controller.createPayment
+  );
+
+router
+  .route("/:id")
+  .get(
+    passport.authenticate("accessToken", { session: false }),
+    isAdmin,
+    controller.getPayment
+  )
+  .put(
+    passport.authenticate("accessToken", { session: false }),
+    isAdmin,
+    controller.updatePayment
+  );
+
+module.exports = router;

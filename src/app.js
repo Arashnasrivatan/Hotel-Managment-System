@@ -13,6 +13,7 @@ const authRoutes = require("./routes/Auth");
 const userRoutes = require("./routes/User");
 const roomsRoutes = require("./routes/Room");
 const bookingRoutes = require("./routes/Booking");
+const paymentRoutes = require("./routes/Payment");
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/rooms", roomsRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/payments", paymentRoutes);
 
 //* 404 Err Handler
 app.use((req, res) => {

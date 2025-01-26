@@ -25,10 +25,27 @@ exports.getBookings = async (req, res, next) => {
       where,
       limit,
       offset,
+      attributes: { exclude: ["user_id", "room_id", "created_at", "updated_at"] },
+      include: [
+        {
+          model: Room,
+          as: "room",
+          attributes: { exclude: ["amenities", "created_at", "updated_at"] },
+        },
+        {
+          model: User,
+          as: "user",
+          attributes: { exclude: ["password", "created_at", "updated_at"] },
+        },
+      ],
     });
 
     if (bookings.count === 0) {
       return response(res, 404, "رزرو یافت نشد");
+    }
+
+    if(!bookings.rows[0]) {
+      return response(res, 404, "رزروی در این صفحه وجود ندارد");
     }
 
     return response(res, 200, "لیست رزروها با موفقیت گرفته شد", {
@@ -142,6 +159,19 @@ exports.getBooking = async (req, res, next) => {
     }
     const booking = await Booking.findByPk(id, {
       where,
+      attributes: { exclude: ["user_id", "room_id", "created_at", "updated_at"] },
+      include: [
+        {
+          model: Room,
+          as: "room",
+          attributes: { exclude: ["amenities", "created_at", "updated_at"] },
+        },
+        {
+          model: User,
+          as: "user",
+          attributes: { exclude: ["password", "created_at", "updated_at"] },
+        },
+      ],
     });
 
     if (!booking) {

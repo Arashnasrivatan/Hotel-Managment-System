@@ -276,6 +276,7 @@ exports.getRoomImages = async (req, res, next) => {
       attributes: {
         exclude: ["room_id"],
       },
+      include: [{ model: Room, attributes: { exclude: ["amenities"] } }],
     });
 
     return response(res, 200, "تصاویر اتاق با موفقیت گرفته شد", roomImages);
@@ -291,6 +292,7 @@ exports.deleteRoomImage = async (req, res, next) => {
       attributes: {
         exclude: ["room_id"],
       },
+      include: [{ model: Room, attributes: { exclude: ["amenities"] } }],
     });
 
     if (!roomImage) {

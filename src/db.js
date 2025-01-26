@@ -41,6 +41,16 @@ Booking.belongsTo(Room, {
   as: "room",
 });
 
+Booking.hasMany(Payment, {
+  foreignKey: "booking_id",
+  as: "payments",
+});
+
+Payment.belongsTo(Booking, {
+  foreignKey: "booking_id",
+  as: "booking",
+});
+
 Room.hasMany(RoomImages, {
   foreignKey: "room_id",
   as: "images",
