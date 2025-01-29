@@ -5,8 +5,6 @@ const { User } = require("./../db");
 const redis = require("./../redis");
 const sharp = require("sharp");
 const path = require("path");
-const nodemailer = require("nodemailer");
-const { v4: uuidv4 } = require("uuid");
 const response = require("./../utils/response");
 
 exports.register = async (req, res, next) => {

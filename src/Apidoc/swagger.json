@@ -12,11 +12,256 @@
   },
   "servers": [
     {
-      "url": "http://localhost:4000",
+      "url": "http://localhost:4000/api",
       "description": "Local server"
     }
   ],
-  "paths": {
-   
+  "components": {
+    "securitySchemes": {
+      "accessToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "refreshToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "Arash Nasrivatan" },
+          "email": { "type": "string", "example": "arashnasrivatan@gmail.com" },
+          "avatar": {
+            "type": "string",
+            "example": "https://example.com/avatar.jpg"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "example": "خطای داخلی سرور" }
         }
       }
+    }
+  },
+
+  "tags": [
+    {
+      "name": "Auth 🔐",
+      "description": "Authentication routes"
+    },
+    {
+      "name": "Users 🧑‍🦱",
+      "description": "User routes"
+    },
+    {
+      "name": "Rooms 🛏️",
+      "description": "Room routes"
+    },
+    {
+      "name": "Bookings 📅",
+      "description": "Booking routes"
+    },
+    {
+      "name": "Payments 💳",
+      "description": "Payment routes"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth 🔐"],
+        "summary": "ثبت نام کاربر جدید",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password"],
+                "properties": {
+                  "name": { "type": "string", "example": "Arash Nasrivatan" },
+                  "email": {
+                    "type": "string",
+                    "example": "arashnasrivatan@gmail.com"
+                  },
+                  "password": { "type": "string", "example": "SecurePass123!" },
+                  "avatar": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "ثبت نام موفق",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "400": {
+            "description": "ایمیل تکراری یا خطای اعتبارسنجی",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth 🔐"],
+        "summary": "ورود به حساب کاربری",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "arashnasrivatan@gmail.com"
+                  },
+                  "password": { "type": "string", "example": "SecurePass123!" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ورود موفق",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "example": "jwt.token.here"
+                    },
+                    "refreshToken": {
+                      "type": "string",
+                      "example": "refresh.token.here"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ایمیل یا رمز عبور اشتباه",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Auth 🔐"],
+        "summary": "دریافت اطلاعات کاربر جاری",
+        "security": [{ "accessToken": [] }],
+        "responses": {
+          "200": {
+            "description": "اطلاعات کاربر دریافت شد",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "عدم احراز هویت",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "get": {
+        "tags": ["Auth 🔐"],
+        "summary": "تولید مجدد توکن",
+        "security": [{ "refreshToken": [] }],
+        "responses": {
+          "200": {
+            "description": "توکن جدید صادر شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "example": "new.jwt.token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "لطفا مجددا وارد شوید",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth 🔐"],
+        "summary": "خروج از حساب کاربری",
+        "security": [{ "accessToken": [] }],
+        "responses": {
+          "200": {
+            "description": "خروج موفق",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "با موفقیت خارج شدید"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "لطفا وارد شوید",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

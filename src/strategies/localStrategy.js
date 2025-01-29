@@ -5,7 +5,6 @@ const localStrategy = require("passport-local").Strategy;
 
 module.exports = new localStrategy({usernameField:"email"},async (email, password, done) => {
   
-  
   const user = await User.findOne({
     where: {
       email,
