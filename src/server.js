@@ -3,13 +3,15 @@ const { db } = require("./db");
 const configs = require("./configs");
 const redis = require("./redis");
 
-//* Connect To DB
-
 //* Start Server
 async function startServer() {
   try {
+    //* Connect To DB
     await db.authenticate();
+
+    //*Redis
     await redis.ping();
+
     app.listen(configs.port, () => {
       console.log(`Server started on port ${configs.port}`);
     });

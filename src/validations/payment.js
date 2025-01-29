@@ -5,14 +5,14 @@ const createPayment = yup.object().shape({
   payment_status: yup
     .string()
     .optional("لطفا وضعیت پرداخت را وارد کنید")
-    .enum(
+    .oneOf(
       ["paid", "pending", "failed"],
       "وضعیت پرداخت باید یکی از موارد paid pending failed باشد"
     ),
   payment_type: yup
     .string()
     .optional("لطفا نوع پرداخت را وارد کنید")
-    .enum(
+    .oneOf(
       ["normal", "return"],
       "نوع پرداخت باید یکی از موارد normal return باشد"
     ),
@@ -24,14 +24,14 @@ const updatePayment = yup.object().shape({
   payment_status: yup
     .string()
     .optional("لطفا وضعیت پرداخت را وارد کنید")
-    .enum(
+    .oneOf(
       ["paid", "pending", "failed"],
       "وضعیت پرداخت باید یکی از موارد paid pending failed باشد"
     ),
   payment_type: yup
     .string()
     .optional("لطفا نوع پرداخت را وارد کنید")
-    .enum(
+    .oneOf(
       ["normal", "return"],
       "نوع پرداخت باید یکی از موارد normal return باشد"
     ),
