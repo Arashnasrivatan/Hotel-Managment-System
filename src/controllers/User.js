@@ -31,6 +31,10 @@ exports.getUsers = async (req, res, next) => {
       return response(res, 404, "هیچ کاربری یافت نشد");
     }
 
+    if(!users.rows[0]){
+      return response(res, 400, "کاربری در این صفحه وجود ندارد")
+    }
+
     return response(res, 200, "لیست کاربران با موفقیت گرفته شد", {
       total: users.count,
       currentPage: page,

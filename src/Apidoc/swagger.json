@@ -30,22 +30,19 @@
       }
     },
     "schemas": {
-      "User": {
+      "ApiResponse": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "example": 1 },
-          "name": { "type": "string", "example": "Arash Nasrivatan" },
-          "email": { "type": "string", "example": "arashnasrivatan@gmail.com" },
-          "avatar": {
-            "type": "string",
-            "example": "https://example.com/avatar.jpg"
-          }
+          "success": { "type": "boolean", "example": true },
+          "statusCode": { "type": "integer", "example": 200 },
+          "message": { "type": "string" },
+          "data": { "type": "object" }
         }
       },
       "ErrorResponse": {
         "type": "object",
         "properties": {
-          "message": { "type": "string", "example": "خطای داخلی سرور" }
+          "message": { "type": "string", "example": ["validation errors"] }
         }
       }
     }
@@ -89,10 +86,10 @@
                   "name": { "type": "string", "example": "Arash Nasrivatan" },
                   "email": {
                     "type": "string",
-                    "example": "arashnasrivatan@gmail.com"
+                    "example": "example@gmail.com"
                   },
-                  "password": { "type": "string", "example": "SecurePass123!" },
-                  "avatar": { "type": "string", "format": "binary" }
+                  "password": { "type": "string", "example": "SecurePass123" },
+                  "avatar": { "type": "file" }
                 }
               }
             }
@@ -102,9 +99,7 @@
           "201": {
             "description": "ثبت نام موفق",
             "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
-              }
+              "application/json": {}
             }
           },
           "400": {
@@ -132,9 +127,9 @@
                 "properties": {
                   "email": {
                     "type": "string",
-                    "example": "arashnasrivatan@gmail.com"
+                    "example": "example@gmail.com"
                   },
-                  "password": { "type": "string", "example": "SecurePass123!" }
+                  "password": { "type": "string", "example": "SecurePass123" }
                 }
               }
             }
@@ -182,7 +177,7 @@
             "description": "اطلاعات کاربر دریافت شد",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
+                "$ref": "#/components/schemas/ApiResponse"
               }
             }
           },
@@ -257,6 +252,308 @@
             "content": {
               "application/json": {
                 "$ref": "#/components/schemas/ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/": {
+      "get": {
+        "tags": ["Users 🧑‍🦱"],
+        "summary": "لیست کاربران",
+        "description": "این API برای دریافت لیست کاربران با قابلیت صفحه‌بندی و فیلتر بر اساس `userId` است.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "شناسه‌ی کاربر (اختیاری)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "شماره صفحه (اختیاری، مقدار پیش‌فرض: 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "example": 2
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "تعداد کاربران در هر صفحه (اختیاری، مقدار پیش‌فرض: 10)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "example": 20
+            }
+          }
+        ],
+        "security": [
+          {
+            "accessToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "لیست کاربران با موفقیت دریافت شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "لیست کاربران با موفقیت گرفته شد"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 150
+                        },
+                        "currentPage": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 8
+                        },
+                        "users": {
+                          "type": "array"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "صفحه‌ی موردنظر حاوی کاربری نیست",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "کاربری در این صفحه وجود ندارد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "هیچ کاربری یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "هیچ کاربری یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "لطفا وارد شوید",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/forgot-password": {
+      "post": {
+        "tags": ["Users 🧑‍🦱"],
+        "summary": "درخواست بازنشانی رمز عبور",
+        "description": "ارسال ایمیل برای بازنشانی رمز عبور. در صورت وجود کاربر، یک ایمیل حاوی لینک بازنشانی ارسال می‌شود.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ایمیل بازنشانی رمز عبور ارسال شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "ایمیل بازنشانی رمز عبور ارسال شد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "کاربر یافت نشد یا درخواست بیش از حد ارسال شده است",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "کاربری با این ایمیل وجود ندارد یا لطفاً چند دقیقه دیگر تلاش کنید"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطا در ارسال ایمیل",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "خطا در ارسال ایمیل"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/reset-password/{token}": {
+      "post": {
+        "tags": ["Users 🧑‍🦱"],
+        "summary": "بازنشانی رمز عبور",
+        "description": "کاربر می‌تواند از طریق لینکی که به ایمیلش ارسال شده، رمز عبور جدیدی تنظیم کند.",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "abcdef123456"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["newPassword", "confirmPassword"],
+                "properties": {
+                  "newPassword": {
+                    "type": "string",
+                    "example": "NewSecurePass123!"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "example": "NewSecurePass123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "رمز عبور با موفقیت تغییر یافت",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "رمز عبور با موفقیت تغییر یافت"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "لینک نامعتبر است یا رمز عبور مطابقت ندارد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "لینک بازنشانی نامعتبر است یا رمز عبور و تأیید آن یکسان نیست"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطای سرور",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "خطایی رخ داده است، لطفا مجددا تلاش کنید"
+                    }
+                  }
+                }
               }
             }
           }
