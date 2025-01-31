@@ -559,6 +559,282 @@
           }
         }
       }
+    },
+    "/user/change-password": {
+      "post": {
+        "tags": ["Users 🧑‍🦱"],
+        "summary": "تغییر رمز عبور",
+        "description": "این API برای تغییر رمز عبور کاربران استفاده می‌شود. کاربر باید رمز عبور فعلی را ارائه دهد و رمز جدید با تأیید آن ارسال شود.",
+        "security": [{ "accessToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["oldPassword", "newPassword", "confirmPassword"],
+                "properties": {
+                  "oldPassword": {
+                    "type": "string",
+                    "example": "OldSecurePass123!",
+                    "description": "رمز عبور فعلی کاربر"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "example": "NewSecurePass123!",
+                    "description": "رمز عبور جدید که باید حداقل ۸ کاراکتر باشد و شامل حروف و اعداد باشد."
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "example": "NewSecurePass123!",
+                    "description": "تأیید رمز عبور جدید که باید با مقدار `newPassword` برابر باشد."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "رمز عبور با موفقیت تغییر یافت",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "رمز عبور با موفقیت تغییر یافت"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "خطا در درخواست کاربر",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "رمز عبور و تأیید آن یکسان نیست"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "احراز هویت نامعتبر",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "توکن نامعتبر است یا منقضی شده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/profile": {
+      "put": {
+        "tags": ["Users 🧑‍🦱"],
+        "summary": "ویرایش پروفایل",
+        "description": "این API برای ویرایش اطلاعات پروفایل کاربر استفاده می‌شود. می‌توان نام، ایمیل و تصویر پروفایل را تغییر داد.",
+        "security": [{ "accessToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Arash Nasrivatan",
+                    "description": "نام جدید کاربر"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "example@gmail.com",
+                    "description": "ایمیل جدید کاربر که نباید تکراری باشد"
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "فایل تصویر پروفایل (فرمت‌های مجاز: JPG, PNG)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "پروفایل با موفقیت به‌روزرسانی شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "پروفایل با موفقیت به‌روزرسانی شد"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer", "example": 1 },
+                        "name": {
+                          "type": "string",
+                          "example": "Arash Nasrivatan"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "example@gmail.com"
+                        },
+                        "avatar": {
+                          "type": "string",
+                          "example": "/images/avatars/1700000000-image.jpg"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ایمیل قبلاً ثبت شده است یا اطلاعات نادرست است",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "این ایمیل قبلاً ثبت شده است"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "کاربر یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "کاربری با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/delete-account": {
+      "delete": {
+        "tags": ["Users 🧑‍🦱"],
+        "summary": "حذف حساب کاربری",
+        "description": "این API برای حذف حساب کاربری استفاده می‌شود. کاربران عادی می‌توانند حساب خود را حذف کنند، اما ادمین‌ها می‌توانند حساب کاربران دیگر را نیز حذف کنند.",
+        "security": [{ "accessToken": [] }],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "description": "شناسه کاربری که باید حذف شود (فقط برای ادمین‌ها). اگر مقدار `userId` ارسال نشود، حساب کاربری جاری حذف خواهد شد.",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "حساب کاربری با موفقیت حذف شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "حساب کاربری با موفقیت حذف شد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "خطا در درخواست (مثلاً حذف حساب ادمین یا نداشتن `userId` برای حذف کاربر دیگر)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "ادمین نمی‌تواند حساب کاربری خود را حذف کند"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "کاربر موردنظر یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "کاربری با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "احراز هویت نامعتبر",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "توکن نامعتبر است یا منقضی شده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
