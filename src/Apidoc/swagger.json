@@ -835,6 +835,757 @@
           }
         }
       }
+    },
+    "/rooms": {
+      "get": {
+        "tags": ["Rooms 🛏️"],
+        "summary": "دریافت لیست اتاق‌ها",
+        "description": "این API لیست تمام اتاق‌های موجود را همراه با تصاویر آنها برمی‌گرداند.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "شماره صفحه برای دریافت لیست اتاق‌ها (پیش‌فرض: 1)",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "تعداد اتاق‌ها در هر صفحه (پیش‌فرض: 10)",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "لیست اتاق‌ها با موفقیت دریافت شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "roomCount": {
+                      "type": "integer",
+                      "example": 50
+                    },
+                    "currentPage": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "example": 5
+                    },
+                    "rooms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer", "example": 1 },
+                          "room_number": { "type": "string", "example": "101" },
+                          "floor": { "type": "integer", "example": 1 },
+                          "room_type": {
+                            "type": "string",
+                            "example": "Single"
+                          },
+                          "capacity": { "type": "integer", "example": 2 },
+                          "price_per_night": {
+                            "type": "number",
+                            "example": 2200000
+                          },
+                          "amenities": {
+                            "type": "string",
+                            "example": "WiFi,TV,Mini Bar"
+                          },
+                          "images": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": { "type": "integer", "example": 1 },
+                                "image_path": {
+                                  "type": "string",
+                                  "example": "/images/rooms/1700000000-room.jpg"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطایی در سرور رخ داده است",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "خطایی در دریافت اطلاعات رخ داده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Rooms 🛏️"],
+        "summary": "ایجاد اتاق جدید",
+        "description": "این API برای افزودن یک اتاق جدید به سیستم استفاده می‌شود. فقط ادمین‌ها می‌توانند اتاق ایجاد کنند.",
+        "security": [{ "accessToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "room_number",
+                  "floor",
+                  "room_type",
+                  "capacity",
+                  "price_per_night",
+                  "amenities",
+                  "images"
+                ],
+                "properties": {
+                  "room_number": {
+                    "type": "string",
+                    "example": "102",
+                    "description": "شماره اتاق (منحصربه‌فرد)"
+                  },
+                  "floor": {
+                    "type": "integer",
+                    "example": 2,
+                    "description": "طبقه‌ای که اتاق در آن قرار دارد"
+                  },
+                  "room_type": {
+                    "type": "string",
+                    "example": "Luxury",
+                    "description": "نوع اتاق (مانند: Double, Single, Suite)"
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "example": 3,
+                    "description": "ظرفیت تعداد نفرات اتاق"
+                  },
+                  "price_per_night": {
+                    "type": "number",
+                    "example": 5500000,
+                    "description": "قیمت هر شب اقامت در این اتاق"
+                  },
+                  "amenities": {
+                    "type": "array",
+                    "example": "[\"WiFi\", \"TV\", \"Mini Bar\"]",
+                    "description": "لیست امکانات اتاق (باید به‌صورت آرایه JSON ارسال شود)"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary",
+                      "description": "فایل‌های تصاویر مربوط به اتاق (فرمت‌های مجاز: JPG, PNG)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "اتاق با موفقیت ایجاد شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "اتاق با موفقیت اضافه شد"
+                    },
+                    "room": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer", "example": 10 },
+                        "room_number": { "type": "string", "example": "102" },
+                        "floor": { "type": "integer", "example": 2 },
+                        "room_type": { "type": "string", "example": "Suite" },
+                        "capacity": { "type": "integer", "example": 3 },
+                        "price_per_night": {
+                          "type": "number",
+                          "example": 5500000
+                        },
+                        "amenities": {
+                          "type": "string",
+                          "example": "WiFi,TV,Mini Bar"
+                        },
+                        "images": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "example": "/images/rooms/1700000000-room.jpg"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "درخواست نامعتبر (مثلاً شماره اتاق تکراری یا عدم ارسال تصویر)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "شماره اتاق وارد شده تکراری است"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "احراز هویت نامعتبر",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "توکن نامعتبر است یا دسترسی لازم را ندارید"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطایی در پردازش سرور رخ داده است",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "خطایی در پردازش تصاویر رخ داده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms/{id}": {
+      "get": {
+        "tags": ["Rooms 🛏️"],
+        "summary": "دریافت اطلاعات یک اتاق خاص",
+        "description": "این API اطلاعات یک اتاق را بر اساس شناسه آن همراه با تصاویر و امکانات بازمی‌گرداند.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه اتاق مورد نظر",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "اتاق با موفقیت دریافت شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer", "example": 5 },
+                    "room_number": { "type": "string", "example": "105" },
+                    "floor": { "type": "integer", "example": 2 },
+                    "room_type": { "type": "string", "example": "Suite" },
+                    "capacity": { "type": "integer", "example": 4 },
+                    "price_per_night": { "type": "number", "example": 4800000 },
+                    "amenities": {
+                      "type": "array",
+                      "example": ["WiFi", "TV", "Mini Bar"]
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer", "example": 1 },
+                          "image_path": {
+                            "type": "string",
+                            "example": "/images/rooms/1700000000-room.jpg"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "اتاق یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "اتاق با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Rooms 🛏️"],
+        "summary": "ویرایش اطلاعات یک اتاق",
+        "description": "این API برای ویرایش اطلاعات یک اتاق خاص استفاده می‌شود. فقط ادمین‌ها مجاز به ویرایش اتاق هستند.",
+        "security": [{ "accessToken": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه اتاق مورد نظر",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "room_number": { "type": "string", "example": "105" },
+                  "floor": { "type": "integer", "example": 2 },
+                  "room_type": { "type": "string", "example": "Suite" },
+                  "capacity": { "type": "integer", "example": 4 },
+                  "price_per_night": { "type": "number", "example": 4800000 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "اتاق با موفقیت ویرایش شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "اتاق با موفقیت ویرایش شد"
+                    },
+                    "room": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer", "example": 5 },
+                        "room_number": { "type": "string", "example": "105" },
+                        "floor": { "type": "integer", "example": 2 },
+                        "room_type": { "type": "string", "example": "Suite" },
+                        "capacity": { "type": "integer", "example": 4 },
+                        "price_per_night": {
+                          "type": "number",
+                          "example": 4800000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "شماره اتاق تکراری است",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "شماره اتاق وارد شده تکراری است"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "اتاق یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "اتاق با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Rooms 🛏️"],
+        "summary": "حذف یک اتاق",
+        "description": "این API برای حذف یک اتاق خاص استفاده می‌شود. فقط ادمین‌ها مجاز به حذف اتاق هستند.",
+        "security": [{ "accessToken": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه اتاق مورد نظر",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "اتاق با موفقیت حذف شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "اتاق با موفقیت حذف شد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "اتاق یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "اتاق با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطا در حذف تصاویر",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "خطایی در حذف تصاویر رخ داده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms/{id}/images": {
+      "post": {
+        "tags": ["Rooms 🛏️"],
+        "summary": "افزودن تصویر به اتاق",
+        "description": "این API برای اضافه کردن یک یا چند تصویر به اتاق مشخص استفاده می‌شود. فقط ادمین‌ها می‌توانند تصاویر را برای اتاق‌ها اضافه کنند.",
+        "security": [{ "accessToken": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه اتاق",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary",
+                      "description": "فایل‌های تصاویر مربوط به اتاق (فرمت‌های مجاز: JPG, PNG)"
+                    },
+                    "description": "تصاویر برای اتاق"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "تصاویر با موفقیت اضافه شدند",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تصاویر با موفقیت اضافه شدند"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "درخواست نامعتبر (مثلاً عدم ارسال تصویر)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "حداقل یک عکس باید برای اتاق آپلود شود"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "اتاق یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "اتاق با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطای سرور",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "خطای سرور رخ داده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Rooms 🛏️"],
+        "summary": "دریافت تصاویر اتاق",
+        "description": "این API برای دریافت تمام تصاویر مربوط به یک اتاق خاص استفاده می‌شود.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه اتاق",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "تصاویر اتاق با موفقیت دریافت شدند",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer", "example": 1 },
+                      "image_path": {
+                        "type": "string",
+                        "example": "/images/rooms/1700000000-room.jpg"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "اتاق یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "اتاق با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطای سرور",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "خطا در دریافت تصاویر رخ داده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms/images/{imageId}": {
+      "delete": {
+        "tags": ["Rooms 🛏️"],
+        "summary": "حذف تصویر اتاق",
+        "description": "این API برای حذف یک تصویر از اتاق مشخص شده استفاده می‌شود.",
+        "security": [{ "accessToken": [] }],
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "description": "شناسه تصویر",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "تصویر با موفقیت حذف شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تصویر با موفقیت حذف شد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "تصویر یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تصویر با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطای سرور",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "خطای سرور رخ داده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
