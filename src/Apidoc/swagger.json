@@ -1921,9 +1921,18 @@
                       "properties": {
                         "id": { "type": "integer", "example": 15 },
                         "total_nights": { "type": "integer", "example": 5 },
-                        "total_amount": { "type": "number", "example": 5000000 },
-                        "check_in_time": { "type": "string", "example": "2025-01-28T14:00:00.000Z" },
-                        "check_out_time": { "type": "string", "example": "2025-01-28T14:00:00.000Z" },
+                        "total_amount": {
+                          "type": "number",
+                          "example": 5000000
+                        },
+                        "check_in_time": {
+                          "type": "string",
+                          "example": "2025-01-28T14:00:00.000Z"
+                        },
+                        "check_out_time": {
+                          "type": "string",
+                          "example": "2025-01-28T14:00:00.000Z"
+                        },
                         "status": { "type": "string", "example": "pending" },
                         "user_id": { "type": "integer", "example": 3 },
                         "room_id": { "type": "integer", "example": 2 }
@@ -1987,6 +1996,425 @@
                     "message": {
                       "type": "string",
                       "example": "خطایی در پردازش اطلاعات رخ داده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/:id": {
+      "get": {
+        "tags": ["Bookings 📅"],
+        "summary": "دریافت اطلاعات رزرو با شناسه مشخص",
+        "description": "این API اطلاعات رزرو را با شناسه ارائه شده برمی‌گرداند. در صورتی که کاربر ادمین باشد، تمام اطلاعات رزرو برای او قابل مشاهده است. برای کاربران عادی، فقط اطلاعات رزرو خودشان قابل مشاهده است.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه رزرو که می‌خواهید اطلاعات آن را دریافت کنید",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "رزرو با موفقیت یافت شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "رزرو با موفقیت یافت شد"
+                    },
+                    "booking": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer", "example": 1 },
+                        "room_id": { "type": "integer", "example": 101 },
+                        "user_id": { "type": "integer", "example": 2 },
+                        "check_in_date": {
+                          "type": "string",
+                          "example": "2025-02-05T14:00:00.000Z"
+                        },
+                        "check_out_date": {
+                          "type": "string",
+                          "example": "2025-02-10T12:00:00.000Z"
+                        },
+                        "status": { "type": "string", "example": "confirmed" },
+                        "room": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer", "example": 101 },
+                            "room_number": {
+                              "type": "string",
+                              "example": "101"
+                            },
+                            "room_type": {
+                              "type": "string",
+                              "example": "Single"
+                            },
+                            "capacity": { "type": "integer", "example": 2 },
+                            "price_per_night": {
+                              "type": "number",
+                              "example": 2200000
+                            }
+                          }
+                        },
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer", "example": 5 },
+                            "name": {
+                              "type": "string",
+                              "example": "Arash Nasrivatan"
+                            },
+                            "email": {
+                              "type": "string",
+                              "example": "arash.nasrivatan@gmail.com"
+                            },
+                            "avatar": {
+                              "type": "string",
+                              "example": "/images/avatars/1700000000-image.jpg"
+                            },
+                            "role": {
+                              "type": "string",
+                              "example": "admin"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "رزروی با این شناسه یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "رزروی با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطایی در سرور رخ داده است",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "خطایی در سرور رخ داده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Bookings 📅"],
+        "summary": "ویرایش اطلاعات رزرو",
+        "description": "این API به کاربران این امکان را می‌دهد که اطلاعات رزرو خود را (مثل تاریخ ورود و خروج و اتاق) به روز کنند. تنها کاربران مالک رزرو یا ادمین می‌توانند این تغییرات را انجام دهند.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه رزرو که می‌خواهید آن را ویرایش کنید",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "room_id": { "type": "integer", "example": 102 },
+                  "check_in_date": {
+                    "type": "string",
+                    "example": "2025-02-06"
+                  },
+                  "check_out_date": {
+                    "type": "string",
+                    "example": "2025-02-11"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "رزرو با موفقیت ویرایش شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "رزرو با موفقیت ویرایش شد"
+                    },
+                    "booking": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer", "example": 1 },
+                        "room_id": { "type": "integer", "example": 102 },
+                        "check_in_date": {
+                          "type": "string",
+                          "example": "2025-02-06T14:00:00.000Z"
+                        },
+                        "check_out_date": {
+                          "type": "string",
+                          "example": "2025-02-11T12:00:00.000Z"
+                        },
+                        "status": { "type": "string", "example": "pending" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "مشکلی در اعتبارسنجی ورودی‌ها یا تغییرات ایجاد شده در رزرو وجود دارد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تاریخ ورود نمی‌تواند بعد از تاریخ خروج باشد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "دسترسی به ویرایش رزرو مجاز نیست",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "شما اجازه ویرایش این رزرو را ندارید"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "رزروی با این شناسه یافت نشد یا اتاق مورد نظر موجود نیست",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "اتاق با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطایی در سرور رخ داده است",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "خطایی در سرور رخ داده است"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{id}/cancel": {
+      "post": {
+        "tags": ["Bookings 📅"],
+        "summary": "لغو رزرو",
+        "description": "این API به کاربران امکان می‌دهد رزرو خود را لغو کنند. ادمین می‌تواند هر رزروی را لغو کند، اما کاربران معمولی فقط می‌توانند رزروهای خود را لغو کنند.",
+        "security": [{ "accessToken": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه رزرو",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "رزرو با موفقیت لغو شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "رزرو با موفقیت لغو شد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "خطا در لغو رزرو",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "شما نمیتوانید رزرو رو در روز ورود لغو کنید"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "رزرو یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "رزروی با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/availability": {
+      "post": {
+        "tags": ["Bookings 📅"],
+        "summary": "بررسی دسترس‌پذیری اتاق‌ها",
+        "description": "این API بررسی می‌کند که آیا اتاقی برای بازه زمانی مشخصی در دسترس است یا خیر.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["check_in_date", "check_out_date"],
+                "properties": {
+                  "check_in_date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-06-15",
+                    "description": "تاریخ ورود"
+                  },
+                  "check_out_date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-06-20",
+                    "description": "تاریخ خروج"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "لیست اتاق‌های در دسترس",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "اتاق‌های در دسترس با موفقیت یافت شدند"
+                    },
+                    "availableRooms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer", "example": 101 },
+                          "room_number": { "type": "integer", "example": 205 },
+                          "floor": { "type": "integer", "example": 2 },
+                          "room_type": {
+                            "type": "string",
+                            "example": "Double"
+                          },
+                          "capacity": { "type": "integer", "example": 2 },
+                          "price_per_night": {
+                            "type": "integer",
+                            "example": 500000
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "خطای ورودی",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تاریخ ورود و خروج الزامی است"
                     }
                   }
                 }
