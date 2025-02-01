@@ -7,7 +7,6 @@ const {
   availabilityValidateSchema
 } = require("./../validations/booking");
 const passport = require("passport");
-const isAdmin = require("./../middlewares/isAdmin");
 
 const router = express.Router();
 
