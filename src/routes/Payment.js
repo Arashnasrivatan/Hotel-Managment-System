@@ -1,7 +1,7 @@
 const express = require("express");
 const controller = require("./../controllers/Payment");
 const validate = require("./../middlewares/validate");
-const {createPayment, updatePayment} = require("./../validations/payment");
+const { createPayment, updatePayment } = require("./../validations/payment");
 const passport = require("passport");
 const isAdmin = require("../middlewares/isAdmin");
 
@@ -33,6 +33,11 @@ router
     isAdmin,
     validate(updatePayment),
     controller.updatePayment
+  )
+  .delete(
+    passport.authenticate("accessToken", { session: false }),
+    isAdmin,
+    controller.deletePayment
   );
 
 module.exports = router;
