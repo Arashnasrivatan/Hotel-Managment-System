@@ -2572,7 +2572,7 @@
                   "payment_type": {
                     "type": "string",
                     "example": "normal",
-                    "enum": ["normal","return"]
+                    "enum": ["normal", "return"]
                   },
                   "booking_id": { "type": "integer", "example": 12 }
                 }
@@ -2624,6 +2624,230 @@
                     "message": {
                       "type": "string",
                       "example": "رزروی با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/{id}": {
+      "get": {
+        "tags": ["Payments 💳"],
+        "summary": "دریافت اطلاعات یک پرداخت",
+        "description": "این API اطلاعات یک تراکنش خاص را بر اساس شناسه آن برمی‌گرداند. فقط ادمین‌ها می‌توانند این اطلاعات را مشاهده کنند.",
+        "security": [{ "accessToken": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه تراکنش مورد نظر",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "اطلاعات تراکنش با موفقیت دریافت شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer", "example": 5 },
+                    "amount": { "type": "number", "example": 500000 },
+                    "payment_status": { "type": "string", "example": "paid" },
+                    "payment_type": { "type": "string", "example": "normal" },
+                    "booking": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer", "example": 12 },
+                        "check_in_date": {
+                          "type": "string",
+                          "example": "2025-01-28"
+                        },
+                        "check_out_date": {
+                          "type": "string",
+                          "example": "2025-02-02"
+                        },
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer", "example": 5 },
+                            "name": {
+                              "type": "string",
+                              "example": "Arash Nasrivatan"
+                            },
+                            "email": {
+                              "type": "string",
+                              "example": "example@gmail.com"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "تراکنشی با این شناسه یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تراکنش با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Payments 💳"],
+        "summary": "بروزرسانی اطلاعات یک پرداخت",
+        "description": "این API اطلاعات یک تراکنش را بر اساس شناسه آن ویرایش می‌کند. فقط ادمین‌ها مجاز به انجام این کار هستند.",
+        "security": [{ "accessToken": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه تراکنش مورد نظر",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": { "type": "number", "example": 600000 },
+                  "payment_status": {
+                    "type": "string",
+                    "example": "pending",
+                    "enum": ["pending", "paid", "failed"]
+                  },
+                  "payment_type": {
+                    "type": "string",
+                    "example": "return",
+                    "enum": ["normal", "return"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "اطلاعات تراکنش با موفقیت به‌روزرسانی شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تراکنش با موفقیت به‌روزرسانی شد"
+                    },
+                    "payment": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer", "example": 5 },
+                        "amount": { "type": "number", "example": 600000 },
+                        "payment_status": {
+                          "type": "string",
+                          "example": "pending"
+                        },
+                        "payment_type": {
+                          "type": "string",
+                          "example": "return"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "تراکنشی با این شناسه یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تراکنش با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Payments 💳"],
+        "summary": "حذف یک پرداخت",
+        "description": "این API برای حذف یک تراکنش خاص بر اساس شناسه آن استفاده می‌شود. فقط ادمین‌ها مجاز به حذف تراکنش‌ها هستند.",
+        "security": [{ "accessToken": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "شناسه تراکنش مورد نظر برای حذف",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "تراکنش با موفقیت حذف شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تراکنش با موفقیت حذف شد"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "تراکنشی با این شناسه یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تراکنش با این شناسه یافت نشد"
                     }
                   }
                 }
