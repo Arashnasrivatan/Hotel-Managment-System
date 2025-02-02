@@ -2423,6 +2423,215 @@
           }
         }
       }
+    },
+    "/payments": {
+      "get": {
+        "tags": ["Payments 💳"],
+        "summary": "دریافت لیست پرداخت‌ها",
+        "description": "این API لیستی از تمام تراکنش‌های پرداخت را نمایش می‌دهد. فقط ادمین مجاز به مشاهده این لیست است.",
+        "security": [{ "accessToken": [] }],
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "query",
+            "description": "شناسه رزرو (اختیاری)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": 12
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "شماره صفحه (پیش‌فرض: ۱)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "example": 2
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "تعداد تراکنش‌ها در هر صفحه (پیش‌فرض: ۱۰)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "example": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "لیست تراکنش‌ها دریافت شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": { "type": "integer", "example": 100 },
+                    "currentPage": { "type": "integer", "example": 2 },
+                    "totalPages": { "type": "integer", "example": 10 },
+                    "payments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer", "example": 1 },
+                          "amount": { "type": "number", "example": 500000 },
+                          "payment_status": {
+                            "type": "string",
+                            "example": "paid"
+                          },
+                          "payment_type": {
+                            "type": "string",
+                            "example": "normal",
+                            "enum": ["normal", "return"]
+                          },
+                          "booking": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "integer", "example": 12 },
+                              "check_in_date": {
+                                "type": "string",
+                                "example": "2025-01-28"
+                              },
+                              "check_out_date": {
+                                "type": "string",
+                                "example": "2025-02-02"
+                              },
+                              "user": {
+                                "type": "object",
+                                "properties": {
+                                  "id": { "type": "integer", "example": 5 },
+                                  "name": {
+                                    "type": "string",
+                                    "example": "Arash Nasrivatan"
+                                  },
+                                  "email": {
+                                    "type": "string",
+                                    "example": "example@gmail.com"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "هیچ تراکنشی یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "هیچ تراکنشی یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Payments 💳"],
+        "summary": "ایجاد یک پرداخت جدید",
+        "description": "این API برای ایجاد یک پرداخت جدید مرتبط با یک رزرو خاص استفاده می‌شود. فقط ادمین مجاز به ثبت پرداخت است.",
+        "security": [{ "accessToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "amount",
+                  "payment_status",
+                  "payment_type",
+                  "booking_id"
+                ],
+                "properties": {
+                  "amount": { "type": "number", "example": 500000 },
+                  "payment_status": {
+                    "type": "string",
+                    "example": "paid",
+                    "enum": ["pending", "paid", "failed"]
+                  },
+                  "payment_type": {
+                    "type": "string",
+                    "example": "normal",
+                    "enum": ["normal","return"]
+                  },
+                  "booking_id": { "type": "integer", "example": 12 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "پرداخت با موفقیت ثبت شد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "تراکنش با موفقیت ایجاد شد"
+                    },
+                    "payment": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer", "example": 1 },
+                        "amount": { "type": "number", "example": 500000 },
+                        "payment_status": {
+                          "type": "string",
+                          "example": "paid"
+                        },
+                        "payment_type": {
+                          "type": "string",
+                          "example": "normal",
+                          "enum": ["normal", "return"]
+                        },
+                        "booking_id": { "type": "integer", "example": 12 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "رزروی با این شناسه یافت نشد",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "رزروی با این شناسه یافت نشد"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
