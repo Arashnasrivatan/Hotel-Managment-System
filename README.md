@@ -1,4 +1,4 @@
-# 🏨 Hotel Booking API(Developing ...)
+# 🏨 Hotel Booking API
 
 Welcome to the **Hotel Booking API**! This API allows users to register, book rooms, and manage hotel-related operations efficiently. Below is the detailed information to help you get started.
 
@@ -78,6 +78,7 @@ Welcome to the **Hotel Booking API**! This API allows users to register, book ro
 - **Sequelize ORM**
 - **Passport.js** (Authentication)
 - **MySQL** (Database)
+- **Redis** (Database)
 
 ---
 
