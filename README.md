@@ -92,7 +92,8 @@ Welcome to the **Hotel Booking API**! This API allows users to register, book ro
 
 ## 🧠 AI Rating
 
-![AI Rating](https://img.shields.io/badge/Deep%20Seek-8.5%2F10-brightgreen?logo=ai&logoColor=white&style=for-the-badge)
+![AI Rating](https://img.shields.io/badge/Deep%20Seek-8.5%2F10-blue?logo=ai&logoColor=white&style=for-the-badge)
+![AI Rating](https://img.shields.io/badge/Chat%20GPT-8%2F10-brightgreen?logo=ai&logoColor=white&style=for-the-badge)
 
 ---
 
