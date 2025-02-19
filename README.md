@@ -87,6 +87,11 @@ Welcome to the **Hotel Booking API**! This API allows users to register, book ro
 - **Authentication**: Token-based (Access and Refresh tokens).
 - **Input Validation**: Using `Yup` for robust schema validation.
 - **File Upload**: Secure and organized file storage for images.
+---
+
+## SQL Structure 🪄
+
+[View SQL Diagram on DrawSQL](https://drawsql.app/teams/arashnasrivatan/diagrams/hotel-managment-system)
 
 ---
 
