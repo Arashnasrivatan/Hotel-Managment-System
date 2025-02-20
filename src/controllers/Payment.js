@@ -154,6 +154,7 @@ exports.deletePayment = async (req, res, next) => {
   }
 };
 
+//! BUG
 exports.verify = async (req, res, next) => {
   try {
     const { trackId } = req.query;
@@ -177,13 +178,13 @@ exports.verify = async (req, res, next) => {
 
     if (verifiedPayment.result !== 100) {
       //* Way 1
-      // payment.payment_status = "failed";
-      // booking.status = "canceled";
-      // await payment.save();
-      // await booking.save();
+      payment.payment_status = "failed";
+      booking.status = "canceled";
+      await payment.save();
+      await booking.save();
       //* Way 2
-      await payment.destroy();
-      await booking.destroy();
+      // await payment.destroy();
+      // await booking.destroy();
       return response(res, 400, "پرداخت ناموفق بود");
     }
     payment.payment_status = "paid";

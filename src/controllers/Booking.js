@@ -112,7 +112,7 @@ exports.create = async (req, res, next) => {
       room_id,
       check_in_date: checkInWithTime.toDate(),
       check_out_date: checkOutWithTime.toDate(),
-      track_id: paymentService.trackId
+      track_id: paymentService.trackId,
     });
 
     const newPayment = await Payment.create({
@@ -378,6 +378,7 @@ exports.update = async (req, res, next) => {
     let returnAmount = 0;
     let newPayment = null;
     let newReturnPayment = null;
+    let paymentService = null;
 
     if (totalPaid > totalAmount) {
       returnAmount = totalPaid - totalAmount;
@@ -389,13 +390,15 @@ exports.update = async (req, res, next) => {
         booking_id: booking.id,
       });
     } else if (totalPaid < totalAmount) {
-      // TODO Create new payment link
+      paymentService = await zibal.createPayment(totalAmount - totalPaid);
       newPayment = await Payment.create({
         amount: totalAmount - totalPaid,
         payment_date: new Date(),
         booking_id: booking.id,
+        track_id: paymentService.trackId,
       });
       booking.status = "pending";
+      booking.track_id = paymentService.trackId;
     }
 
     booking.room_id = room_id || booking.room_id;
@@ -412,14 +415,17 @@ exports.update = async (req, res, next) => {
 
     const responseData = {
       total_nights: nights,
-      total_amount: totalAmount,
       booking,
       isRoomChanged,
     };
 
     if (returnAmount) responseData.returnAmount = returnAmount;
-    if (newPayment) responseData.newPayment = newPayment;
     if (newReturnPayment) responseData.newReturnPayment;
+    if (newPayment) {
+      responseData.newPayment = newPayment;
+      responseData.totalAmount = newPayment.amount;
+    }
+    if (paymentService) responseData.PaymentUrl = paymentService.paymentUrl;
 
     return response(res, 200, message, responseData);
   } catch (err) {
