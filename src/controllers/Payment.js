@@ -1,5 +1,6 @@
 const response = require("../utils/response");
 const { Payment, Booking, User, Room } = require("../db");
+const zibal = require("./../services/zibal");
 
 exports.getPayments = async (req, res, next) => {
   try {
@@ -148,6 +149,49 @@ exports.deletePayment = async (req, res, next) => {
     }
     await payment.destroy();
     return response(res, 200, "تراکنش با موفقیت حذف شد");
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.verify = async (req, res, next) => {
+  try {
+    const { trackId } = req.query;
+
+    const payment = await Payment.findOne({ where: { track_id: trackId } });
+
+    if (!payment) {
+      return response(res, 404, "رسید یافت نشد");
+    }
+
+    const booking = await Booking.findOne({ where: { track_id: trackId } });
+
+    if (!booking) {
+      return response(res, 404, "رزرو یافت نشد");
+    }
+    if (booking.status !== "pending" && payment.payment_status !== "pending") {
+      return response(res, 400, "پرداخت قبلا صورت گرفته");
+    }
+
+    const verifiedPayment = await zibal.verifyPayment(trackId);
+
+    if (verifiedPayment.result !== 100) {
+      //* Way 1
+      // payment.payment_status = "failed";
+      // booking.status = "canceled";
+      // await payment.save();
+      // await booking.save();
+      //* Way 2
+      await payment.destroy();
+      await booking.destroy();
+      return response(res, 400, "پرداخت ناموفق بود");
+    }
+    payment.payment_status = "paid";
+    booking.status = "confirmed";
+
+    await payment.save();
+    await booking.save();
+    return response(res, 200, "رزرو با موفقیت پرداخت شد", { payment, booking });
   } catch (err) {
     next(err);
   }

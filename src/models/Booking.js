@@ -27,6 +27,11 @@ const Booking = (sequelize) =>
           isIn: [["pending", "confirmed", "canceled"]],
         },
       },
+      track_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique:true
+      },
       user_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,

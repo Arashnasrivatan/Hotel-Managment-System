@@ -2,6 +2,7 @@ const { Room, Booking, Payment } = require("./../db");
 const { Op } = require("sequelize");
 const moment = require("moment");
 const response = require("./../utils/response");
+const zibal = require("./../services/zibal");
 
 exports.getBookings = async (req, res, next) => {
   try {
@@ -25,7 +26,9 @@ exports.getBookings = async (req, res, next) => {
       where,
       limit,
       offset,
-      attributes: { exclude: ["user_id", "room_id", "created_at", "updated_at"] },
+      attributes: {
+        exclude: ["user_id", "room_id", "created_at", "updated_at"],
+      },
       include: [
         {
           model: Room,
@@ -44,7 +47,7 @@ exports.getBookings = async (req, res, next) => {
       return response(res, 404, "رزرو یافت نشد");
     }
 
-    if(!bookings.rows[0]) {
+    if (!bookings.rows[0]) {
       return response(res, 404, "رزروی در این صفحه وجود ندارد");
     }
 
@@ -102,17 +105,21 @@ exports.create = async (req, res, next) => {
 
     const totalAmount = nights * room.price_per_night;
 
+    const paymentService = await zibal.createPayment(totalAmount);
+
     const newBooking = await Booking.create({
       user_id: req.user.id,
       room_id,
       check_in_date: checkInWithTime.toDate(),
       check_out_date: checkOutWithTime.toDate(),
+      track_id: paymentService.trackId
     });
 
     const newPayment = await Payment.create({
       payment_date: new Date(),
       booking_id: newBooking.id,
       amount: totalAmount,
+      track_id: paymentService.trackId,
     });
 
     const cleanedBooking = {
@@ -128,9 +135,8 @@ exports.create = async (req, res, next) => {
       payment_date: newPayment.payment_date,
       booking_id: newPayment.booking_id,
       amount: totalAmount,
+      payment_url: paymentService.paymentUrl,
     };
-
-    //TODO Payment link
 
     return response(res, 201, "رزرو با موفقیت ایجاد شد", {
       total_nights: nights,
@@ -159,7 +165,9 @@ exports.getBooking = async (req, res, next) => {
     }
     const booking = await Booking.findByPk(id, {
       where,
-      attributes: { exclude: ["user_id", "room_id", "created_at", "updated_at"] },
+      attributes: {
+        exclude: ["user_id", "room_id", "created_at", "updated_at"],
+      },
       include: [
         {
           model: Room,
@@ -381,6 +389,7 @@ exports.update = async (req, res, next) => {
         booking_id: booking.id,
       });
     } else if (totalPaid < totalAmount) {
+      // TODO Create new payment link
       newPayment = await Payment.create({
         amount: totalAmount - totalPaid,
         payment_date: new Date(),

@@ -7,6 +7,9 @@ const isAdmin = require("../middlewares/isAdmin");
 
 const router = express.Router();
 
+router.route("/verify").get(controller.verify);
+
+
 router
   .route("/")
   .get(
@@ -39,5 +42,6 @@ router
     isAdmin,
     controller.deletePayment
   );
+
 
 module.exports = router;

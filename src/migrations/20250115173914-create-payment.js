@@ -36,6 +36,11 @@ module.exports = {
           isIn: [["normal", "return"]],
         },
       },
+      track_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        unique: true,
+      },
       booking_id: {
         type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,

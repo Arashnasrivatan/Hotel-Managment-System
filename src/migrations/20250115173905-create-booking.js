@@ -26,6 +26,11 @@ module.exports = {
           isIn: [["pending", "confirmed", "canceled"]],
         },
       },
+      track_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        unique: true,
+      },
       user_id: {
         type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,

@@ -37,6 +37,11 @@ const Payment = (sequelize) =>
           isIn: [["normal", "return"]],
         },
       },
+      track_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique:true
+      },
       booking_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
