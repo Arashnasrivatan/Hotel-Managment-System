@@ -8,7 +8,7 @@ export default [
     languageOptions: {
       sourceType: "commonjs",
       globals: {
-        ...globals.node, // اضافه کردن گلوبال‌های Node.js
+        ...globals.node,
         ...globals.browser,
       },
     },
