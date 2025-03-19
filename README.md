@@ -75,6 +75,7 @@ Welcome to the **Hotel Booking API**! This API allows users to register, book ro
 
 - **Node.js**
 - **Express.js**
+- **Eslint**
 - **Sequelize ORM**
 - **Passport.js** (Authentication)
 - **MySQL** (Database)
