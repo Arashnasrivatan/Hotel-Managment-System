@@ -6,7 +6,9 @@
     "dev": "dotenv -e .env -- nodemon ./src/server.js",
     "db": "dotenv -e .env -- sequelize-cli db:create --config ./src/sequelizeConfigs.js --migrations-path ./src/migrations",
     "migrate": "dotenv -e .env -- sequelize-cli db:migrate --config ./src/sequelizeConfigs.js --migrations-path ./src/migrations --models-path ./src/models",
-    "undomigrate": "dotenv -e .env -- sequelize-cli db:migrate:undo:all --config ./src/sequelizeConfigs.js --migrations-path ./src/migrations --models-path ./src/models"
+    "undomigrate": "dotenv -e .env -- sequelize-cli db:migrate:undo:all --config ./src/sequelizeConfigs.js --migrations-path ./src/migrations --models-path ./src/models",
+    "lint": "eslint",
+    "lintfix": "eslint --fix"
   },
   "keywords": [],
   "author": "Arashnasrivatan",
@@ -35,6 +37,7 @@
   },
   "devDependencies": {
     "dotenv-cli": "^7.4.2",
+    "globals": "^16.0.0",
     "nodemon": "^3.1.4",
     "sequelize-cli": "^6.6.2",
     "swagger-jsdoc": "^6.2.8",

@@ -22,7 +22,7 @@ exports.createPayment = async (amountInToman) => {
       paymentUrl: `${configs.zibal.payment_base_url}${responseData.trackId}`,
     };
   } catch (err) {
-    throw err;
+    return err;
   }
 };
 
@@ -43,6 +43,6 @@ exports.verifyPayment = async (trackId) => {
 
     return responseData;
   } catch (err) {
-    throw err;
+    return err;
   }
 };

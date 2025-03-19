@@ -1,6 +1,7 @@
 const app = require("./app");
-const { db } = require("./db");
+
 const configs = require("./configs");
+const { db } = require("./db");
 const redis = require("./redis");
 
 //* Start Server

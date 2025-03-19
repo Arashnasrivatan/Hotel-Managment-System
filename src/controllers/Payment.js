@@ -183,8 +183,8 @@ exports.verify = async (req, res, next) => {
       await payment.save();
       await booking.save();
       //* Way 2
-      // await payment.destroy();
-      // await booking.destroy();
+      // Await payment.destroy();
+      // Await booking.destroy();
       return response(res, 400, "پرداخت ناموفق بود");
     }
     payment.payment_status = "paid";

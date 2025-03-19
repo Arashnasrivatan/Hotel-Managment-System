@@ -41,6 +41,7 @@ const roomValidateSchema = yup.object().shape({
         try {
           return JSON.parse(originalValue);
         } catch (err) {
+          console.error(err);
           return value;
         }
       }

@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const Payment = (sequelize) =>
-  sequelize.define(
+  {return sequelize.define(
     "payment",
     {
       id: {
@@ -59,6 +59,6 @@ const Payment = (sequelize) =>
       createdAt: "created_at",
       updatedAt: "updated_at",
     }
-  );
+  )};
 
 module.exports = Payment;

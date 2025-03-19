@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const RoomImages = (sequelize) =>
-  sequelize.define(
+  {return sequelize.define(
     "room_image",
     {
       id: {
@@ -27,6 +27,6 @@ const RoomImages = (sequelize) =>
       tableName: "room_images",
       timestamps: false,
     }
-  );
+  )};
 
 module.exports = RoomImages;

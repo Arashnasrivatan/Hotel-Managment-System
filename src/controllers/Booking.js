@@ -1,4 +1,4 @@
-const { Room, Booking, Payment } = require("./../db");
+const { User, Room, Booking, Payment } = require("./../db");
 const { Op } = require("sequelize");
 const moment = require("moment");
 const response = require("./../utils/response");
@@ -258,12 +258,12 @@ exports.update = async (req, res, next) => {
       return response(res, 400, "تاریخ خروج نمی تواند قبل از تاریخ ورود باشد");
     }
 
-    const hasPendingReturn = pendingPayments.some(
-      (payment) => payment.payment_type === "return"
-    );
-    const hasPendingNormal = pendingPayments.some(
-      (payment) => payment.payment_type === "normal"
-    );
+    const hasPendingReturn = pendingPayments.some((payment) => {
+      return payment.payment_type === "return";
+    });
+    const hasPendingNormal = pendingPayments.some((payment) => {
+      return payment.payment_type === "normal";
+    });
 
     if (hasPendingReturn || hasPendingNormal) {
       let message = null;
@@ -530,7 +530,9 @@ exports.checkAvailability = async (req, res, next) => {
       },
     });
 
-    const bookedRoomIdList = bookedRoomIds.map((booking) => booking.room_id);
+    const bookedRoomIdList = bookedRoomIds.map((booking) => {
+      return booking.room_id;
+    });
 
     const availableRooms = await Room.findAll({
       where: {
