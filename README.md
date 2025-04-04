@@ -103,6 +103,17 @@ Welcome to the **Hotel Booking API**! This API allows users to register, book ro
 
 ---
 
+## 🚀 Note from me
+
+I'm currently in the learning phase, so there might be some imperfections or areas for improvement in this code. I'm actively working to improve my skills and will keep refining this project as I learn more.
+
+🤝 **Contributions are welcome!** If you'd like to help improve this project:
+- Feel free to **fork** the repository
+- Open an **issue** to discuss suggestions
+- Submit a **pull request** with your improvements]
+
+---
+
 ## 📞 Contact
 
 For further information or support, feel free to reach out!
