@@ -14,6 +14,7 @@ const userRoutes = require("./routes/User");
 const roomsRoutes = require("./routes/Room");
 const bookingRoutes = require("./routes/Booking");
 const paymentRoutes = require("./routes/Payment");
+const aiChatRoutes = require("./routes/AiChat");
 const swaggerDocs = require("./Apidoc/swagger");
 
 const app = express();
@@ -51,6 +52,8 @@ app.use("/api/user", userRoutes);
 app.use("/api/rooms", roomsRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/aiChat", aiChatRoutes);
+
 
 //* Swagger
 swaggerDocs(app);
